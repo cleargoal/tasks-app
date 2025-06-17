@@ -16,22 +16,17 @@ class TaskFactory extends Factory
 
     public function definition(): array
     {
-        // Created in the past
         $createdAt = $this->faker->dateTimeBetween('-90 days', '-1 day');
 
-        // Status: todo or done
         $status = $this->faker->randomElement([StatusEnum::TODO, StatusEnum::DONE]);
 
-        // Due date: optional, 1–60 days after created_at
         $dueDate = $this->faker->optional()->dateTimeBetween(
             $createdAt->format('Y-m-d') . ' +1 day',
             $createdAt->format('Y-m-d') . ' +60 days'
         );
 
-        // Completed at: only if done
         $completedAt = null;
         if ($status === StatusEnum::DONE) {
-            // The latest it can be is either due_date or now
             $latestCompletion = $dueDate && $dueDate < now() ? $dueDate : now();
 
             $completedAt = $this->faker->dateTimeBetween($createdAt, $latestCompletion);

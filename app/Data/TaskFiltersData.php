@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Data\Task;
+namespace App\Data;
 
-use Spatie\LaravelData\Data;
 use App\Enums\PriorityEnum;
 use App\Enums\StatusEnum;
+use Spatie\LaravelData\Data;
 
 class TaskFiltersData extends Data
 {

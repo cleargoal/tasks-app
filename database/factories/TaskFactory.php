@@ -27,9 +27,7 @@ class TaskFactory extends Factory
 
         $completedAt = null;
         if ($status === StatusEnum::DONE) {
-            $latestCompletion = $dueDate && $dueDate < now() ? $dueDate : now();
-
-            $completedAt = $this->faker->dateTimeBetween($createdAt, $latestCompletion);
+            $completedAt = $this->faker->dateTimeBetween($createdAt, 'now');
         }
 
         return [

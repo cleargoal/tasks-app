@@ -16,13 +16,13 @@ class TaskSeeder extends Seeder
 
         foreach ($users as $user) {
             $parentTasks = Task::factory()
-                ->count(10)
+                ->count(rand(10, 15))
                 ->for($user)
                 ->create();
 
             foreach ($parentTasks as $parentTask) {
                 Task::factory()
-                    ->count(rand(5, 10))
+                    ->count(rand(8, 12))
                     ->for($user)
                     ->create([
                         'parent_id' => $parentTask->id,

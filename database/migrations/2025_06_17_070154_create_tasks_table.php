@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
 
-            $table->string('status')->default(StatusEnum::DONE);     // use StatusEnum
-            $table->string('priority')->default(PriorityEnum::LOW);   // use PriorityEnum
+            $table->string('status')->default(StatusEnum::TODO->value);
+            $table->tinyInteger('priority')->default(PriorityEnum::LOW->value);
 
             $table->timestamp('due_date')->nullable();
             $table->timestamp('completed_at')->nullable();

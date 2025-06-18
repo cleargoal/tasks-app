@@ -12,6 +12,11 @@ class TaskSeeder extends Seeder
 {
     public function run(): void
     {
+        User::factory()->create([
+            'name' => 'Start User',
+            'email' => 'start-user@mail.org',
+        ]); // default user for easier manual testing
+
         $users = User::factory(10)->create();
 
         foreach ($users as $user) {

@@ -6,6 +6,7 @@ namespace App\Data;
 
 use App\Enums\PriorityEnum;
 use App\Enums\StatusEnum;
+use Illuminate\Validation\Rules\Enum;
 use Spatie\LaravelData\Data;
 
 class TaskCreateData extends Data
@@ -24,9 +25,9 @@ class TaskCreateData extends Data
         return [
             'userId' => ['required', 'integer', 'exists:users,id'],
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'status' => ['nullable', 'in:todo,in_progress,done'], // or use Enum rule
-            'priority' => ['nullable', 'in:low,medium,high'],
+            'description' => ['nullable', 'string'],
+            'status' => ['nullable', new Enum(StatusEnum::class)],
+            'priority' => ['nullable', new Enum(PriorityEnum::class)],
             'parentId' => ['nullable', 'exists:tasks,id'],
         ];
     }

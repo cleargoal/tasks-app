@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Data;
 
 use App\Enums\PriorityEnum;
+use App\Enums\StatusEnum;
+use Illuminate\Validation\Rules\Enum;
 use Spatie\LaravelData\Data;
 
 class TaskUpdateData extends Data
@@ -13,6 +15,7 @@ class TaskUpdateData extends Data
         public ?string $title = null,
         public ?string $description = null,
         public ?PriorityEnum $priority = null,
+        public ?StatusEnum $status = null,
         public ?int $parentId = null,
     ) {}
 
@@ -21,7 +24,8 @@ class TaskUpdateData extends Data
         return [
             'title' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'priority' => ['nullable', 'in:low,medium,high'], // or use EnumRule if preferred
+            'status' => ['nullable', new Enum(StatusEnum::class)],
+            'priority' => ['nullable', new Enum(PriorityEnum::class)],
             'parentId' => ['nullable', 'exists:tasks,id'],
         ];
     }

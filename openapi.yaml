@@ -192,10 +192,23 @@ paths:
           schema: { type: integer }
       requestBody:
         required: true
+        description: |
+          **Available fields (optional):**
+
+          | Field        | Type    | Example                |
+          |--------------|---------|------------------------|
+          | parent_id    | integer | 17                     |
+          | title        | string  | "Updated task title"   |
+          | description  | string  | "Updated description"  |
+          | priority     | integer | 3                      |
+
+          You can include any combination of these fields in the request body.
+          For example: `{ "title": "New title" }` will only update the title.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/TaskUpdate'
+            example: {}
       responses:
         '200':
           description: Task updated
@@ -281,9 +294,13 @@ components:
     TaskUpdate:
       type: object
       properties:
-        parent_id: { type: integer, nullable: true }
-        title: { type: string }
-        description: { type: string }
+        parent_id:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        description:
+          type: string
         priority:
           type: integer
-          enum: [1,2,3,4,5]
+          enum: [1, 2, 3, 4, 5]

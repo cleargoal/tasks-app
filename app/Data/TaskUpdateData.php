@@ -7,6 +7,7 @@ namespace App\Data;
 use App\Enums\PriorityEnum;
 use App\Enums\StatusEnum;
 use Illuminate\Validation\Rules\Enum;
+use Spatie\LaravelData\Casts\EnumCast;
 use Spatie\LaravelData\Data;
 
 class TaskUpdateData extends Data
@@ -15,6 +16,7 @@ class TaskUpdateData extends Data
         public ?string $title = null,
         public ?string $description = null,
         public ?StatusEnum $status = null,
+//        #[WithCast(EnumCast::class, PriorityEnum::class)]
         public ?PriorityEnum $priority = null,
         public ?int $parentId = null,
         public ?\DateTimeInterface $due_date = null,

@@ -4,38 +4,98 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Data\Task\TaskIndexData;
+use App\Data\TaskCreateData;
+use App\Data\TaskFiltersData;
+use App\Data\TaskUpdateData;
 use App\Models\Task;
-use Illuminate\Support\Collection;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class TaskRepository
 {
-    public function getTasks(TaskIndexData $data): Collection
+    /**
+     * @throws AuthenticationException
+     */
+    public function queryForUser()
     {
-        $query = Task::query();
+        $userId = Auth::id();
 
-        if ($filters = $data->filters) {
-            if ($filters->priority) {
+        if (!$userId) {
+            throw new AuthenticationException('User is not authenticated.');
+        }
+
+        return Task::where('user_id', $userId);
+    }
+
+    /**
+     * @throws AuthenticationException
+     */
+    public function getByFiltersAndSort(?TaskFiltersData $filters, array $sort): Collection
+    {
+        $query = $this->queryForUser();
+
+        if ($filters !== null) {
+            if ($filters->priority !== null) {
                 $query->where('priority', $filters->priority->value);
             }
 
-            if ($filters->status) {
+            if ($filters->status !== null) {
                 $query->where('status', $filters->status->value);
             }
 
-            if ($filters->title) {
+            if ($filters->title !== null) {
                 $query->where('title', 'like', '%' . $filters->title . '%');
             }
 
-            if ($filters->description) {
+            if ($filters->description !== null) {
                 $query->where('description', 'like', '%' . $filters->description . '%');
             }
         }
 
-        foreach ($data->sort as $sort) {
-            $query->orderBy($sort->field->value, $sort->direction);
+        foreach ($sort as $sortData) {
+            $query->orderBy($sortData->field->value, $sortData->direction);
         }
 
         return $query->get();
+    }
+
+    public function create(TaskCreateData $data): Task
+    {
+        return Task::create($data->toArray());
+    }
+
+    /**
+     * @throws AuthenticationException
+     */
+    public function findOrFailForUser(int $id): Task
+    {
+        return $this->queryForUser()->findOrFail($id);
+    }
+
+    /**
+     * @throws AuthenticationException
+     */
+    public function updateForUser(int $id, TaskUpdateData $data): Task
+    {
+        $task = $this->findOrFailForUser($id);
+
+        $updateData = array_filter(
+            $data->toArray(),
+            fn($value) => !is_null($value)
+        );
+        $task->update($updateData);
+
+        return $task;
+    }
+
+    /**
+     * @throws AuthenticationException
+     */
+    public function deleteForUser(int $id): void
+    {
+        $task = $this->findOrFailForUser($id);
+        $task->delete();
     }
 }

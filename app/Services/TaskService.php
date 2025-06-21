@@ -4,17 +4,54 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Data\Task\TaskIndexData;
+use App\Data\TaskCreateData;
+use App\Data\TaskUpdateData;
+use App\Data\TaskIndexData;
+use App\Models\Task;
 use App\Repositories\TaskRepository;
-use Illuminate\Support\Collection;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\Collection;
 
 class TaskService
 {
-    public function __construct(private TaskRepository $repository)
-    {}
+    public function __construct(
+        protected TaskRepository $repository,
+    ) {}
 
-    public function getTasks(TaskIndexData $data): Collection
+    /**
+     * @throws AuthenticationException
+     */
+    public function getAll(TaskIndexData $data): Collection
     {
-        return $this->repository->getTasks($data);
+        return $this->repository->getByFiltersAndSort($data->filters, $data->sort);
+    }
+
+    public function create(TaskCreateData $data): Task
+    {
+        return $this->repository->create($data);
+    }
+
+    /**
+     * @throws AuthenticationException
+     */
+    public function getOneForUser(int $id): Task
+    {
+        return $this->repository->findOrFailForUser($id);
+    }
+
+    /**
+     * @throws AuthenticationException
+     */
+    public function update(int $taskId, TaskUpdateData $data): Task
+    {
+        return $this->repository->updateForUser($taskId, $data);
+    }
+
+    /**
+     * @throws AuthenticationException
+     */
+    public function delete(int $taskId): void
+    {
+        $this->repository->deleteForUser($taskId);
     }
 }

@@ -126,15 +126,31 @@ paths:
             format: date
           description: Filter tasks by due date (YYYY-MM-DD format)
         - in: query
-          name: sort[]
+          name: sort
+          description: |
+            Sort tasks by specified fields. Format: `sort=field:direction`
+
+            Available fields:
+            - created_at
+            - title
+            - priority
+            - due_date
+            - status
+            - completed_at
+
+            Direction options:
+            - asc (ascending)
+            - desc (descending)
+
+            Examples:
+            - Single field sort: `sort=title:asc`
+            - Multiple fields sort: `sort=priority:asc,due_date:desc`
+
+            Note: The `sort=` prefix is required in the query parameter.
           schema:
-            type: array
-            items:
-              type: array
-              items:
-                type: string
+            type: string
           style: form
-          explode: true
+          example: "sort=title:asc,priority:desc"
       responses:
         '200':
           description: A list of tasks

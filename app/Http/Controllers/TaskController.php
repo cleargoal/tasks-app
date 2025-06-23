@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Data\TaskCreateData;
 use App\Data\TaskIndexData;
 use App\Data\TaskUpdateData;
+use App\Exceptions\TaskOperationException;
 use App\Services\TaskService;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
@@ -15,8 +16,7 @@ class TaskController extends Controller
 {
     public function __construct(
         protected TaskService $service,
-    )
-    {
+    ) {
     }
 
     public function index(TaskIndexData $data): JsonResponse
@@ -49,18 +49,23 @@ class TaskController extends Controller
         return response()->json($task);
     }
 
-    /**
-     * @throws AuthenticationException
-     */
     public function destroy(int $id): JsonResponse
     {
-        $this->service->delete($id);
-        return response()->json(['message' => 'Task deleted']);
+        try {
+            $this->service->delete($id);
+            return response()->json(null, 204);
+        } catch (TaskOperationException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 
     public function complete(int $id): JsonResponse
     {
-        $task = $this->service->complete($id);
-        return response()->json($task);
+        try {
+            $task = $this->service->complete($id);
+            return response()->json($task);
+        } catch (TaskOperationException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 }

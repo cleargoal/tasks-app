@@ -5,20 +5,19 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Data\TaskCreateData;
-use App\Data\TaskUpdateData;
 use App\Data\TaskIndexData;
-use App\Models\Task;
+use App\Data\TaskUpdateData;
 use App\Services\TaskService;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
     public function __construct(
         protected TaskService $service,
-    ) {}
+    )
+    {
+    }
 
     public function index(TaskIndexData $data): JsonResponse
     {
@@ -59,4 +58,9 @@ class TaskController extends Controller
         return response()->json(['message' => 'Task deleted']);
     }
 
+    public function complete(int $id): JsonResponse
+    {
+        $task = $this->service->complete($id);
+        return response()->json($task);
+    }
 }

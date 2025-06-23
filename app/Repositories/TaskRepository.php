@@ -7,11 +7,11 @@ namespace App\Repositories;
 use App\Data\TaskCreateData;
 use App\Data\TaskFiltersData;
 use App\Data\TaskUpdateData;
+use App\Enums\StatusEnum;
 use App\Models\Task;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class TaskRepository
 {
@@ -61,9 +61,12 @@ class TaskRepository
         return $query->get();
     }
 
-    public function create(TaskCreateData $data): Task
+    public function createForUser(int $userId, TaskCreateData $data): Task
     {
-        return Task::create($data->toArray());
+        return Task::create([
+            'user_id' => $userId,
+            ...$data->toArray(),
+        ]);
     }
 
     /**
@@ -97,5 +100,19 @@ class TaskRepository
     {
         $task = $this->findOrFailForUser($id);
         $task->delete();
+    }
+
+    /**
+     * @throws AuthenticationException
+     */
+    public function completeTask(int $id): Task
+    {
+        $task = $this->findOrFailForUser($id);
+        $task->update([
+            'status' => StatusEnum::DONE,
+            'completed_at' => now(),
+        ]);
+
+        return $task;
     }
 }

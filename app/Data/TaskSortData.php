@@ -11,6 +11,6 @@ class TaskSortData extends Data
 {
     public function __construct(
         public TaskSortFieldEnum $field,
-        public string $direction, // 'asc' or 'desc'
+        public string $direction,
     ) {}
 }

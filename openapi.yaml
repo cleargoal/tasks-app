@@ -120,6 +120,12 @@ paths:
             type: string
             enum: [todo, done]
         - in: query
+          name: filters[due_date]
+          schema:
+            type: string
+            format: date
+          description: Filter tasks by due date (YYYY-MM-DD format)
+        - in: query
           name: sort[]
           schema:
             type: array
@@ -151,6 +157,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/TaskCreate'
+            example:
+              parent_id: "0 for main tier (optional)"
+              title: "string (require)"
+              description: "string (optional)"
+              status: "todo (optional, default is 'todo')"
+              priority: "1 (optional, default is  5, 'low')"
+              due_date: ""
       responses:
         '201':
           description: Task created successfully
@@ -189,21 +202,24 @@ paths:
         - in: path
           name: id
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       requestBody:
         required: true
         description: |
           **Available fields (optional):**
 
-          | Field        | Type    | Example                |
-          |--------------|---------|------------------------|
-          | parent_id    | integer | 17                     |
-          | title        | string  | "Updated task title"   |
-          | description  | string  | "Updated description"  |
-          | priority     | integer | 3                      |
+          | Field        | Type      | Example                |
+          |--------------|-----------|------------------------|
+          | parent_id    | integer   | 17                     |
+          | title        | string    | "Updated task title"   |
+          | description  | string    | "Updated description"  |
+          | priority     | integer   | 3                      |
+          | due_date     | string    | "2025-12-31"           |
 
           You can include any combination of these fields in the request body.
           For example: `{ "title": "New title" }` will only update the title.
+          Keep in mind to double quote keys and values.
         content:
           application/json:
             schema:
@@ -216,6 +232,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+        '403':
+          description: Not authorized to update this task
 
     delete:
       summary: Delete a task
@@ -231,6 +251,31 @@ paths:
       responses:
         '204':
           description: Task deleted
+
+  /tasks/{id}/complete:
+    post:
+      summary: Mark task as completed
+      security:
+        - bearerAuth: []
+      tags:
+        - Tasks
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task marked as completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+        '403':
+          description: Not authorized to complete this task
 
 components:
   securitySchemes:
@@ -257,39 +302,28 @@ components:
           type: string
           format: date-time
 
-    Task:
-      type: object
-      properties:
-        id: { type: integer }
-        user_id: { type: integer }
-        parent_id: { type: integer, nullable: true }
-        title: { type: string }
-        description: { type: string }
-        status:
-          type: string
-          enum: [todo, done]
-        priority:
-          type: integer
-          enum: [1,2,3,4,5]
-        due_date: { type: string, format: date-time, nullable: true }
-        completed_at: { type: string, format: date-time, nullable: true }
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }
-
     TaskCreate:
       type: object
-      required: [user_id, title, description]
+      required: [title]
       properties:
-        user_id: { type: integer }
-        parent_id: { type: integer, nullable: true }
-        title: { type: string }
-        description: { type: string }
+        parent_id:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        description:
+          type: string
         status:
           type: string
           enum: [todo, done]
         priority:
           type: integer
           enum: [1,2,3,4,5]
+        due_date:
+          type: string
+          format: date
+          nullable: true
+          description: Due date for the task in YYYY-MM-DD format (must be today or later)
 
     TaskUpdate:
       type: object
@@ -304,3 +338,33 @@ components:
         priority:
           type: integer
           enum: [1, 2, 3, 4, 5]
+        due_date:
+          type: string
+          format: date
+          nullable: true
+          description: Due date for the task in YYYY-MM-DD format
+
+    Task:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        parent_id: { type: integer, nullable: true }
+        title: { type: string }
+        description: { type: string }
+        status:
+          type: string
+          enum: [todo, done]
+        priority:
+          type: integer
+          enum: [1,2,3,4,5]
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }

@@ -5,12 +5,26 @@ declare(strict_types=1);
 namespace App\Data;
 
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Optional;
 
 class TaskIndexData extends Data
 {
     public function __construct(
-        public ?TaskFiltersData $filters,
-        /** @var TaskSortData[] */
-        public array $sort = [],
+        public ?TaskFiltersData              $filters = null,
+        public TaskSortingData|Optional|null $sort = null,
     ) {}
+
+    public static function rules(): array
+    {
+        return [
+            'sort' => ['nullable', 'string'],
+        ];
+    }
+
+    protected static function headers(): array
+    {
+        return [
+            'sort' => fn(?string $value) => TaskSortingData::fromString($value),
+        ];
+    }
 }

@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Data\TaskCreateData;
 use App\Data\TaskFiltersData;
+use App\Data\TaskSortingData;
 use App\Data\TaskUpdateData;
 use App\Enums\StatusEnum;
 use App\Models\Task;
@@ -29,10 +30,7 @@ class TaskRepository
         return Task::where('user_id', $userId);
     }
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function getByFiltersAndSort(?TaskFiltersData $filters, array $sort): Collection
+    public function getByFiltersAndSort(?TaskFiltersData $filters, ?TaskSortingData $sort): Collection
     {
         $query = $this->queryForUser();
 
@@ -54,8 +52,10 @@ class TaskRepository
             }
         }
 
-        foreach ($sort as $sortData) {
-            $query->orderBy($sortData->field->value, $sortData->direction);
+        if ($sort !== null) {
+            foreach ($sort->sorts as $sortData) {
+                $query->orderBy($sortData['field']->value, $sortData['direction']);
+            }
         }
 
         return $query->get();

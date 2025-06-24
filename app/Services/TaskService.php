@@ -5,40 +5,37 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Data\TaskCreateData;
-use App\Data\TaskIndexData;
+use App\Data\TaskFiltersData;
+use App\Data\TaskSortingData;
 use App\Data\TaskUpdateData;
+use App\Enums\StatusEnum;
+use App\Exceptions\TaskOperationException;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Collection;
 
-class TaskService
+readonly class TaskService
 {
     public function __construct(
-        protected TaskRepository $repository,
-    )
-    {
+        private TaskRepository $repository
+    ) {
     }
 
     /**
      * @throws AuthenticationException
      */
-    public function getAll(TaskIndexData $data): Collection
+    public function getByFiltersAndSort(?TaskFiltersData $filters, ?TaskSortingData $sort): Collection
     {
-        return $this->repository->getByFiltersAndSort($data->filters, $data->sort);
+        return $this->repository->getByFiltersAndSort($filters, $sort);
     }
 
+    /**
+     * @throws AuthenticationException
+     */
     public function create(TaskCreateData $data): Task
     {
-        return $this->repository->createForUser(auth()->id(), $data);
-    }
-
-    /**
-     * @throws AuthenticationException
-     */
-    public function getOneForUser(int $id): Task
-    {
-        return $this->repository->findOrFailForUser($id);
+        return $this->repository->createForUser($data);
     }
 
     /**
@@ -52,13 +49,32 @@ class TaskService
     /**
      * @throws AuthenticationException
      */
+    public function getOneForUser(int $id): Task
+    {
+        return $this->repository->findOrFailForUser($id);
+    }
+
+    /**
+     * @throws TaskOperationException
+     * @throws AuthenticationException
+     */
     public function delete(int $taskId): void
     {
+        $task = $this->repository->findOrFailForUser($taskId);
+
+        if ($task->status === StatusEnum::DONE) {
+            throw new TaskOperationException('Cannot delete completed tasks');
+        }
+
         $this->repository->deleteForUser($taskId);
     }
 
-    public function complete(int $id): Task
+    /**
+     * @throws TaskOperationException
+     * @throws AuthenticationException
+     */
+    public function complete(int $taskId): Task
     {
-        return $this->repository->completeTask($id);
+        return $this->repository->completeTask($taskId);
     }
 }

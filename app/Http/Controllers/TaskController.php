@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 class TaskController extends Controller
 {
     public function __construct(
-        protected TaskService $service,
+        protected readonly TaskService $service,
     )
     {
     }

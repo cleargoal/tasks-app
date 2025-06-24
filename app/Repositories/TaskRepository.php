@@ -9,10 +9,12 @@ use App\Data\TaskFiltersData;
 use App\Data\TaskSortingData;
 use App\Data\TaskUpdateData;
 use App\Enums\StatusEnum;
+use App\Exceptions\TaskOperationException;
 use App\Models\Task;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TaskRepository
 {
@@ -30,6 +32,9 @@ class TaskRepository
         return Task::where('user_id', $userId);
     }
 
+    /**
+     * @throws AuthenticationException
+     */
     public function getByFiltersAndSort(?TaskFiltersData $filters, ?TaskSortingData $sort): Collection
     {
         $query = $this->queryForUser();
@@ -61,8 +66,17 @@ class TaskRepository
         return $query->get();
     }
 
-    public function createForUser(int $userId, TaskCreateData $data): Task
+    /**
+     * @throws AuthenticationException
+     */
+    public function createForUser(TaskCreateData $data): Task
     {
+        $userId = Auth::id();
+
+        if (!$userId) {
+            throw new AuthenticationException('User is not authenticated.');
+        }
+
         return Task::create([
             'user_id' => $userId,
             ...$data->toArray(),
@@ -104,15 +118,30 @@ class TaskRepository
 
     /**
      * @throws AuthenticationException
+     * @throws TaskOperationException
      */
     public function completeTask(int $id): Task
     {
-        $task = $this->findOrFailForUser($id);
-        $task->update([
-            'status' => StatusEnum::DONE,
-            'completed_at' => now(),
-        ]);
+        return DB::transaction(function () use ($id) {
+            $task = $this->queryForUser()
+                ->lockForUpdate()
+                ->findOrFail($id);
 
-        return $task;
+            if (Task::where('parent_id', $task->id)
+                ->where('status', StatusEnum::TODO->value)
+                ->exists()
+            ) {
+                throw new TaskOperationException('Cannot complete task with incomplete subtasks');
+            }
+
+            if ($task->status === StatusEnum::TODO) {
+                $task->update([
+                    'status' => StatusEnum::DONE,
+                    'completed_at' => now(),
+                ]);
+            }
+
+            return $task;
+        }, 5);
     }
 }

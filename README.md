@@ -3,6 +3,9 @@
 ## Overview
 Smart Tasks is a task management application built with Laravel. The API allows you to manage tasks, including creating, updating, filtering, and organizing them by priority and status.
 
+## OpenAPI Documentation
+A detailed OpenAPI (version 3.0.3) specification is available in `openapi.yaml`. This file contains complete API schema definitions, request/response examples, and detailed parameter descriptions. You can use this file with any OpenAPI-compatible tool for a more interactive documentation experience.
+
 ## Authentication
 All API endpoints except registration and login require Bearer token authentication.
 

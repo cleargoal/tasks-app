@@ -16,12 +16,16 @@ class TaskController extends Controller
 {
     public function __construct(
         protected TaskService $service,
-    ) {
+    )
+    {
     }
 
+    /**
+     * @throws AuthenticationException
+     */
     public function index(TaskIndexData $data): JsonResponse
     {
-        $tasks = $this->service->getAll($data);
+        $tasks = $this->service->getByFiltersAndSort($data->filters, $data->sort);
         return response()->json($tasks);
     }
 
@@ -49,6 +53,9 @@ class TaskController extends Controller
         return response()->json($task);
     }
 
+    /**
+     * @throws AuthenticationException
+     */
     public function destroy(int $id): JsonResponse
     {
         try {

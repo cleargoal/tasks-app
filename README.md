@@ -1,61 +1,106 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Smart Tasks API Documentation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
+Smart Tasks is a task management application built with Laravel. The API allows you to manage tasks, including creating, updating, filtering, and organizing them by priority and status.
 
-## About Laravel
+## Authentication
+All API endpoints except registration and login require Bearer token authentication.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Registration
+Register a new user:
+`POST /api/register`
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Required fields:
+- name: Your full name
+- email: Your email address
+- password: Your password
+- password_confirmation: Repeat your password
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Login
+Login to get authentication token:
+`POST /api/login`
 
-## Learning Laravel
+Required fields:
+- email: Your email address
+- password: Your password
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Tasks
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Task Priority Levels
+- 1: Highest
+- 2: High
+- 3: Medium
+- 4: Low
+- 5: Lowest
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Task Status Options
+- todo: Task to be done
+- done: Completed task
 
-## Laravel Sponsors
+### Create Task
+Create a new task:
+`POST /api/tasks`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Fields:
+- title: Task title (required)
+- description: Task description (optional)
+- priority: Priority level 1-5 (optional, default: 5)
+- status: todo/done (optional, default: todo)
+- due_date: Due date in YYYY-MM-DD format (optional)
 
-### Premium Partners
+### Update Task
+Update existing task:
+`PUT /api/tasks/{id}`
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Available fields (all optional):
+- title: New task title
+- description: New task description
+- priority: New priority level (1-5)
+- due_date: New due date (YYYY-MM-DD)
 
-## Contributing
+### Filtering Tasks
+The API supports various filtering options through query parameters.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Examples:
 
-## Code of Conduct
+Filter by title:
+`GET /api/tasks?filters[title]="Project"`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Filter by priority and status:
+`GET /api/tasks?filters[priority]=1&filters[status]="todo"`
 
-## Security Vulnerabilities
+Filter with sorting:
+`GET /api/tasks?filters[status]="todo"&sort=due_date:asc`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Available filters:
+- filters[title]: Filter by task title
+- filters[description]: Filter by task description
+- filters[priority]: Filter by priority (1-5)
+- filters[status]: Filter by status (todo/done)
+- filters[due_date]: Filter by due date (YYYY-MM-DD)
 
-## License
+### Sorting
+Sort tasks using the sort parameter:
+`GET /api/tasks?sort=priority:asc,due_date:desc`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Available sort fields:
+- created_at
+- title
+- priority
+- due_date
+- status
+- completed_at
+
+Sort directions:
+- asc: Ascending
+- desc: Descending
+
+### Complete Task
+Mark a task as completed:
+`POST /api/tasks/{id}/complete`
+
+### Delete Task
+Delete a task:
+`DELETE /api/tasks/{id}`
+
+Note: You cannot delete completed tasks (tasks with status "done"). Only tasks with status "todo" can be deleted.

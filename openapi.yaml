@@ -105,26 +105,50 @@ paths:
       parameters:
         - in: query
           name: filters[title]
-          schema: { type: string }
+          schema:
+            type: string
+          description: |
+            Filter tasks by title (partial match)
+            Example with spaces: `filters[title]="My Project"`
+            Note: Values containing spaces or special characters must be URL-encoded
         - in: query
           name: filters[description]
-          schema: { type: string }
+          schema:
+            type: string
+          description: |
+            Filter tasks by description (partial match)
+            Example with spaces: `filters[description]="urgent task"`
+            Note: Values containing spaces or special characters must be URL-encoded
         - in: query
           name: filters[priority]
           schema:
             type: integer
             enum: [1,2,3,4,5]
+          description: |
+            Filter tasks by priority level:
+            - 1: Highest
+            - 2: High
+            - 3: Medium
+            - 4: Low
+            - 5: Lowest
+
+            Example: `filters[priority]=1`
         - in: query
           name: filters[status]
           schema:
             type: string
             enum: [todo, done]
+          description: |
+            Filter tasks by status
+            Example: `filters[status]="todo"`
         - in: query
           name: filters[due_date]
           schema:
             type: string
             format: date
-          description: Filter tasks by due date (YYYY-MM-DD format)
+          description: |
+            Filter tasks by due date in YYYY-MM-DD format
+            Example: `filters[due_date]="2025-12-31"`
         - in: query
           name: sort
           description: |

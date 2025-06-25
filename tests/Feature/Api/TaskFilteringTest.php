@@ -26,8 +26,7 @@ class TaskFilteringTest extends TestCase
         $this->otherUser = User::factory()->create();
     }
 
-    #[Test]
-    public function it_filters_tasks_by_completed_at_date(): void
+    public function test_it_filters_tasks_by_completed_at_date(): void
     {
         $completedYesterday = Task::factory()->create([
             'user_id' => $this->user->id,
@@ -56,8 +55,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('0.completed_at', '2024-03-15T10:00:00.000000Z');
     }
 
-    #[Test]
-    public function it_filters_multiple_tasks_completed_on_same_date(): void
+    public function test_it_filters_multiple_tasks_completed_on_same_date(): void
     {
         $task1 = Task::factory()->create([
             'user_id' => $this->user->id,
@@ -87,8 +85,7 @@ class TaskFilteringTest extends TestCase
         $this->assertEquals([$task1->id, $task2->id], $taskIds->toArray());
     }
 
-    #[Test]
-    public function it_returns_empty_when_filtering_todo_tasks_by_completed_at(): void
+    public function test_it_returns_empty_when_filtering_todo_tasks_by_completed_at(): void
     {
         Task::factory()->count(3)->create([
             'user_id' => $this->user->id,
@@ -103,8 +100,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonCount(0);
     }
 
-    #[Test]
-    public function it_filters_by_status_and_completed_at_combined(): void
+    public function test_it_filters_by_status_and_completed_at_combined(): void
     {
         $completedTask = Task::factory()->create([
             'user_id' => $this->user->id,
@@ -127,8 +123,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('0.status', 'done');
     }
 
-    #[Test]
-    public function it_filters_completed_at_with_other_filters(): void
+    public function test_it_filters_completed_at_with_other_filters(): void
     {
         $highPriorityCompleted = Task::factory()->create([
             'user_id' => $this->user->id,
@@ -156,8 +151,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('0.priority', 1);
     }
 
-    #[Test]
-    public function it_only_shows_user_own_tasks_when_filtering_by_completed_at(): void
+    public function test_it_only_shows_user_own_tasks_when_filtering_by_completed_at(): void
     {
         $userTask = Task::factory()->create([
             'user_id' => $this->user->id,
@@ -180,8 +174,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('0.user_id', $this->user->id);
     }
 
-    #[Test]
-    public function it_sorts_filtered_completed_tasks_correctly(): void
+    public function test_it_sorts_filtered_completed_tasks_correctly(): void
     {
         $laterTask = Task::factory()->create([
             'user_id' => $this->user->id,
@@ -206,8 +199,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('1.id', $laterTask->id);
     }
 
-    #[Test]
-    public function it_returns_empty_for_non_existent_completed_date(): void
+    public function test_it_returns_empty_for_non_existent_completed_date(): void
     {
         Task::factory()->create([
             'user_id' => $this->user->id,
@@ -228,8 +220,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonCount(0);
     }
 
-    #[Test]
-    public function it_handles_invalid_completed_at_date_format(): void
+    public function test_it_handles_invalid_completed_at_date_format(): void
     {
         Task::factory()->create([
             'user_id' => $this->user->id,
@@ -255,8 +246,7 @@ class TaskFilteringTest extends TestCase
         );
     }
 
-    #[Test]
-    public function it_handles_invalid_due_date_format(): void
+    public function test_it_handles_invalid_due_date_format(): void
     {
         Task::factory()->create([
             'user_id' => $this->user->id,
@@ -281,8 +271,7 @@ class TaskFilteringTest extends TestCase
         );
     }
 
-    #[Test]
-    public function it_handles_invalid_priority_values(): void
+    public function test_it_handles_invalid_priority_values(): void
     {
         $response = $this->actingAs($this->user)
             ->getJson('/api/tasks?filters[priority]=6');
@@ -296,8 +285,7 @@ class TaskFilteringTest extends TestCase
         );
     }
 
-    #[Test]
-    public function it_handles_invalid_status_values(): void
+    public function test_it_handles_invalid_status_values(): void
     {
         $response = $this->actingAs($this->user)
             ->getJson('/api/tasks?filters[status]=invalid');
@@ -311,8 +299,7 @@ class TaskFilteringTest extends TestCase
         );
     }
 
-    #[Test]
-    public function it_filters_by_due_date_and_completed_at_separately(): void
+    public function test_it_filters_by_due_date_and_completed_at_separately(): void
     {
         $task = Task::factory()->create([
             'user_id' => $this->user->id,

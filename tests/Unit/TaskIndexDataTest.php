@@ -14,7 +14,7 @@ class TaskIndexDataTest extends TestCase
 {
     public function test_task_index_data_creation_with_no_parameters(): void
     {
-        $data = new TaskIndexData();
+        $data = new TaskIndexData;
 
         $this->assertNull($data->filters);
         $this->assertNull($data->sort);

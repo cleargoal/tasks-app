@@ -9,7 +9,6 @@ use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TaskDateHandlingTest extends TestCase
@@ -24,8 +23,7 @@ class TaskDateHandlingTest extends TestCase
         $this->user = User::factory()->create();
     }
 
-    #[Test]
-    public function it_handles_date_only_format_when_creating_task(): void
+    public function test_it_handles_date_only_format_when_creating_task(): void
     {
         $tomorrow = Carbon::tomorrow()->format('Y-m-d');
 
@@ -44,8 +42,7 @@ class TaskDateHandlingTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function it_handles_date_only_format_when_updating_task(): void
+    public function test_it_handles_date_only_format_when_updating_task(): void
     {
         $pastDate = '2024-01-15';
         $task = Task::factory()->create([
@@ -68,7 +65,7 @@ class TaskDateHandlingTest extends TestCase
         ]);
     }
 
-    public function it_filters_tasks_by_date_only_format(): void
+    public function test_it_filters_tasks_by_date_only_format(): void
     {
         $matchingTask = Task::factory()->create([
             'user_id' => $this->user->id,
@@ -89,8 +86,7 @@ class TaskDateHandlingTest extends TestCase
         $response->assertJsonPath('0.due_date', '2024-03-15T00:00:00.000000Z');
     }
 
-    #[Test]
-    public function it_filters_tasks_by_completed_at_date(): void
+    public function test_it_filters_tasks_by_completed_at_date(): void
     {
         $completedYesterday = Task::factory()->create([
             'user_id' => $this->user->id,

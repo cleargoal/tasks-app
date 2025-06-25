@@ -8,14 +8,12 @@ use App\Data\TaskCreateData;
 use App\Data\TaskUpdateData;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TaskDataTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[Test]
     public function task_create_data_formats_due_date_correctly(): void
     {
         $data = new TaskCreateData(
@@ -29,7 +27,6 @@ class TaskDataTest extends TestCase
         $this->assertEquals('2024-03-15', $arrayData['due_date']);
     }
 
-    #[Test]
     public function task_update_data_formats_due_date_correctly(): void
     {
         $data = new TaskUpdateData(
@@ -42,7 +39,6 @@ class TaskDataTest extends TestCase
         $this->assertEquals('2024-03-15', $arrayData['due_date']);
     }
 
-    #[Test]
     public function task_data_handles_null_due_date(): void
     {
         $createData = new TaskCreateData(

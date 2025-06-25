@@ -11,13 +11,15 @@ use Tests\TestCase;
 class DateOnlyCastTest extends TestCase
 {
     private DateOnlyCast $cast;
+
     private DataProperty $property;
+
     private CreationContext $context;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cast = new DateOnlyCast();
+        $this->cast = new DateOnlyCast;
 
         // Mock the required dependencies
         $this->property = $this->createMock(DataProperty::class);

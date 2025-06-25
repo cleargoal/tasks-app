@@ -28,8 +28,7 @@ class TaskRepositoryTest extends TestCase
         $this->user = User::factory()->create();
     }
 
-    #[Test]
-    public function it_applies_completed_at_filter_correctly(): void
+    public function test_it_applies_completed_at_filter_correctly(): void
     {
         // Create tasks with different completion dates
         $targetDate = Carbon::parse('2024-03-15');
@@ -68,8 +67,7 @@ class TaskRepositoryTest extends TestCase
         $this->assertEquals($matchingTask->id, $result->first()->id);
     }
 
-    #[Test]
-    public function it_returns_all_tasks_when_completed_at_filter_is_null(): void
+    public function test_it_returns_all_tasks_when_completed_at_filter_is_null(): void
     {
         Task::factory()->count(3)->create([
             'user_id' => $this->user->id,
@@ -89,8 +87,7 @@ class TaskRepositoryTest extends TestCase
         $this->assertCount(3, $result);
     }
 
-    #[Test]
-    public function it_combines_completed_at_with_other_filters(): void
+    public function test_it_combines_completed_at_with_other_filters(): void
     {
         $targetDate = Carbon::parse('2024-03-15');
 

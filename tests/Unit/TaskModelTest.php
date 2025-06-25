@@ -58,7 +58,7 @@ class TaskModelTest extends TestCase
 
     public function test_task_has_correct_fillable_attributes(): void
     {
-        $task = new Task();
+        $task = new Task;
         $expected = [
             'user_id',
             'parent_id',

@@ -6,7 +6,6 @@ namespace Tests\Unit\Data\Transformers;
 
 use App\Data\Transformers\DateOnlyTransformer;
 use Carbon\Carbon;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Spatie\LaravelData\Support\DataProperty;
 use Spatie\LaravelData\Support\Transformation\TransformationContext;
@@ -27,16 +26,14 @@ class DateOnlyTransformerTest extends TestCase
         $this->context = new TransformationContext;
     }
 
-    #[Test]
-    public function it_returns_null_for_null_input(): void
+    public function test_it_returns_null_for_null_input(): void
     {
         $result = $this->transformer->transform($this->property, null, $this->context);
 
         $this->assertNull($result);
     }
 
-    #[Test]
-    public function it_transforms_carbon_instance_to_date_only_string(): void
+    public function test_it_transforms_carbon_instance_to_date_only_string(): void
     {
         $date = Carbon::create(2024, 3, 15, 14, 30, 0);
 
@@ -45,8 +42,7 @@ class DateOnlyTransformerTest extends TestCase
         $this->assertEquals('2024-03-15', $result);
     }
 
-    #[Test]
-    public function it_transforms_string_date_to_date_only_format(): void
+    public function test_it_transforms_string_date_to_date_only_format(): void
     {
         $date = '2024-03-15 14:30:00';
 

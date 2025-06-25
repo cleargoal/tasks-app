@@ -245,8 +245,13 @@ class TaskFilteringTest extends TestCase
                 'errors' => [
                     'filters.completedAt'
                 ]
-            ])
-            ->assertJsonPath('errors.filters.completedAt.0', 'The completed date filter must be in YYYY-MM-DD format.');
+            ]);
+
+        $responseData = $response->json();
+        $this->assertEquals(
+            'The completed date filter must be in YYYY-MM-DD format.',
+            $responseData['errors']['filters.completedAt'][0]
+        );
     }
 
     /** @test */
@@ -266,8 +271,13 @@ class TaskFilteringTest extends TestCase
                 'errors' => [
                     'filters.dueDate'
                 ]
-            ])
-            ->assertJsonPath('errors.filters.dueDate.0', 'The due date filter must be in YYYY-MM-DD format.');
+            ]);
+
+        $responseData = $response->json();
+        $this->assertEquals(
+            'The due date filter must be in YYYY-MM-DD format.',
+            $responseData['errors']['filters.dueDate'][0]
+        );
     }
 
     /** @test */
@@ -276,8 +286,13 @@ class TaskFilteringTest extends TestCase
         $response = $this->actingAs($this->user)
             ->getJson('/api/tasks?filters[priority]=6');
 
-        $response->assertStatus(422)
-            ->assertJsonPath('errors.filters.priority.0', 'Priority filter must be between 1 and 5.');
+        $response->assertStatus(422);
+
+        $responseData = $response->json();
+        $this->assertEquals(
+            'Priority filter must be between 1 and 5.',
+            $responseData['errors']['filters.priority'][0]
+        );
     }
 
     /** @test */
@@ -286,8 +301,13 @@ class TaskFilteringTest extends TestCase
         $response = $this->actingAs($this->user)
             ->getJson('/api/tasks?filters[status]=invalid');
 
-        $response->assertStatus(422)
-            ->assertJsonPath('errors.filters.status.0', 'Status filter must be either "todo" or "done".');
+        $response->assertStatus(422);
+
+        $responseData = $response->json();
+        $this->assertEquals(
+            'Status filter must be either "todo" or "done".',
+            $responseData['errors']['filters.status'][0]
+        );
     }
 
     /** @test */

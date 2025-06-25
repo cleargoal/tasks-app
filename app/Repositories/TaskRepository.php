@@ -74,7 +74,9 @@ class TaskRepository
 
     public function findById(User $user, int $id): Task
     {
-        return $this->queryForUser($user)->findOrFail($id);
+        /** @var Task $task */
+        $task = $this->queryForUser($user)->findOrFail($id);
+        return $task;
     }
 
     public function update(User $user, int $id, TaskUpdateData $data): Task
@@ -99,6 +101,7 @@ class TaskRepository
     public function markAsComplete(User $user, int $id): Task
     {
         return DB::transaction(function () use ($user, $id) {
+            /** @var Task $task */
             $task = $this->queryForUser($user)
                 ->lockForUpdate()
                 ->findOrFail($id);

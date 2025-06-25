@@ -89,7 +89,7 @@ class TaskDateHandlingTest extends TestCase
         $response->assertJsonPath('0.due_date', '2024-03-15T00:00:00.000000Z');
     }
 
-    /** @test */
+    #[Test]
     public function it_filters_tasks_by_completed_at_date(): void
     {
         $completedYesterday = Task::factory()->create([

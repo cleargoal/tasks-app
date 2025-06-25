@@ -26,7 +26,7 @@ class TaskFilteringTest extends TestCase
         $this->otherUser = User::factory()->create();
     }
 
-    /** @test */
+    #[Test]
     public function it_filters_tasks_by_completed_at_date(): void
     {
         $completedYesterday = Task::factory()->create([
@@ -56,7 +56,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('0.completed_at', '2024-03-15T10:00:00.000000Z');
     }
 
-    /** @test */
+    #[Test]
     public function it_filters_multiple_tasks_completed_on_same_date(): void
     {
         $task1 = Task::factory()->create([
@@ -87,7 +87,7 @@ class TaskFilteringTest extends TestCase
         $this->assertEquals([$task1->id, $task2->id], $taskIds->toArray());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_empty_when_filtering_todo_tasks_by_completed_at(): void
     {
         Task::factory()->count(3)->create([
@@ -103,7 +103,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonCount(0);
     }
 
-    /** @test */
+    #[Test]
     public function it_filters_by_status_and_completed_at_combined(): void
     {
         $completedTask = Task::factory()->create([
@@ -127,7 +127,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('0.status', 'done');
     }
 
-    /** @test */
+    #[Test]
     public function it_filters_completed_at_with_other_filters(): void
     {
         $highPriorityCompleted = Task::factory()->create([
@@ -156,7 +156,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('0.priority', 1);
     }
 
-    /** @test */
+    #[Test]
     public function it_only_shows_user_own_tasks_when_filtering_by_completed_at(): void
     {
         $userTask = Task::factory()->create([
@@ -180,7 +180,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('0.user_id', $this->user->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_sorts_filtered_completed_tasks_correctly(): void
     {
         $laterTask = Task::factory()->create([
@@ -206,7 +206,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonPath('1.id', $laterTask->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_empty_for_non_existent_completed_date(): void
     {
         Task::factory()->create([
@@ -228,7 +228,7 @@ class TaskFilteringTest extends TestCase
         $response->assertJsonCount(0);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_invalid_completed_at_date_format(): void
     {
         Task::factory()->create([
@@ -255,7 +255,7 @@ class TaskFilteringTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_invalid_due_date_format(): void
     {
         Task::factory()->create([
@@ -281,7 +281,7 @@ class TaskFilteringTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_invalid_priority_values(): void
     {
         $response = $this->actingAs($this->user)
@@ -296,7 +296,7 @@ class TaskFilteringTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_invalid_status_values(): void
     {
         $response = $this->actingAs($this->user)
@@ -311,7 +311,7 @@ class TaskFilteringTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_filters_by_due_date_and_completed_at_separately(): void
     {
         $task = Task::factory()->create([

@@ -3,6 +3,44 @@
 ## Overview
 Smart Tasks is a task management application built with Laravel. The API allows you to manage tasks, including creating, updating, filtering, and organizing them by priority and status.
 
+## Installation
+### Prerequisites
+- Docker & Docker Compose
+- Git
+
+### Step 1: Clone the Repository
+bash git clone git@github.com:cleargoal/tasks-app.git smart-tasks
+
+### Step 2: Install Dependencies
+
+```
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php84-composer:latest \
+    composer install --ignore-platform-reqs
+```
+
+### Step 3: Environment Configuration
+#### Copy environment file
+`cp .env.example .env`
+#### Generate application key
+`./vendor/bin/sail artisan key:generate`
+
+### Step 4: Start the Application
+#### Start all services in containers
+`./vendor/bin/sail up -d`
+#### Run database migrations and seeding
+`./vendor/bin/sail artisan migrate --seed`
+
+## Testing
+### Run all tests
+`./vendor/bin/sail artisan test`
+### Run tests with coverage
+`./vendor/bin/sail artisan test --coverage`
+
+
 ## OpenAPI Documentation
 A detailed OpenAPI (version 3.0.3) specification is available in `openapi.yaml`. This file contains complete API schema definitions, request/response examples, and detailed parameter descriptions. You can use this file with any OpenAPI-compatible tool for a more interactive documentation experience.
 

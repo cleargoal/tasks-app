@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use App\Http\Requests\LoginRequest;
@@ -14,7 +16,7 @@ class RequestValidationTest extends TestCase
 
     public function test_login_request_validation_passes_with_valid_data(): void
     {
-        $request = new LoginRequest;
+        $request = new LoginRequest();
         $data = [
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -27,7 +29,7 @@ class RequestValidationTest extends TestCase
 
     public function test_login_request_validation_fails_without_email(): void
     {
-        $request = new LoginRequest;
+        $request = new LoginRequest();
         $data = [
             'password' => 'password123',
         ];
@@ -40,7 +42,7 @@ class RequestValidationTest extends TestCase
 
     public function test_login_request_validation_fails_with_invalid_email(): void
     {
-        $request = new LoginRequest;
+        $request = new LoginRequest();
         $data = [
             'email' => 'invalid-email',
             'password' => 'password123',
@@ -54,7 +56,7 @@ class RequestValidationTest extends TestCase
 
     public function test_login_request_validation_fails_without_password(): void
     {
-        $request = new LoginRequest;
+        $request = new LoginRequest();
         $data = [
             'email' => 'test@example.com',
         ];
@@ -67,7 +69,7 @@ class RequestValidationTest extends TestCase
 
     public function test_register_request_validation_passes_with_valid_data(): void
     {
-        $request = new RegisterUserRequest;
+        $request = new RegisterUserRequest();
         $data = [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -81,7 +83,7 @@ class RequestValidationTest extends TestCase
 
     public function test_register_request_validation_fails_without_name(): void
     {
-        $request = new RegisterUserRequest;
+        $request = new RegisterUserRequest();
         $data = [
             'email' => 'john@example.com',
             'password' => 'password123',
@@ -95,7 +97,7 @@ class RequestValidationTest extends TestCase
 
     public function test_register_request_validation_fails_with_too_long_name(): void
     {
-        $request = new RegisterUserRequest;
+        $request = new RegisterUserRequest();
         $data = [
             'name' => str_repeat('a', 256), // 256 characters
             'email' => 'john@example.com',
@@ -110,7 +112,7 @@ class RequestValidationTest extends TestCase
 
     public function test_register_request_validation_fails_with_invalid_email(): void
     {
-        $request = new RegisterUserRequest;
+        $request = new RegisterUserRequest();
         $data = [
             'name' => 'John Doe',
             'email' => 'invalid-email',
@@ -125,7 +127,7 @@ class RequestValidationTest extends TestCase
 
     public function test_register_request_validation_fails_with_short_password(): void
     {
-        $request = new RegisterUserRequest;
+        $request = new RegisterUserRequest();
         $data = [
             'name' => 'John Doe',
             'email' => 'john@example.com',

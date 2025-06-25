@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use App\Models\Task;
@@ -26,7 +28,7 @@ class UserModelTest extends TestCase
 
     public function test_user_has_fillable_attributes(): void
     {
-        $user = new User;
+        $user = new User();
         $expected = ['name', 'email', 'password'];
 
         $this->assertEquals($expected, $user->getFillable());
@@ -34,7 +36,7 @@ class UserModelTest extends TestCase
 
     public function test_user_has_hidden_attributes(): void
     {
-        $user = new User;
+        $user = new User();
         $expected = ['password', 'remember_token'];
 
         $this->assertEquals($expected, $user->getHidden());
@@ -42,7 +44,7 @@ class UserModelTest extends TestCase
 
     public function test_user_uses_has_api_tokens_trait(): void
     {
-        $user = new User;
+        $user = new User();
         $traits = class_uses_recursive(get_class($user));
 
         $this->assertContains(HasApiTokens::class, $traits);

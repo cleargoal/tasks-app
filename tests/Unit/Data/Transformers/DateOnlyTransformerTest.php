@@ -14,19 +14,20 @@ use Spatie\LaravelData\Support\Transformation\TransformationContext;
 class DateOnlyTransformerTest extends TestCase
 {
     private DateOnlyTransformer $transformer;
+
     private DataProperty $property;
+
     private TransformationContext $context;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->transformer = new DateOnlyTransformer();
+        $this->transformer = new DateOnlyTransformer;
         $this->property = $this->createMock(DataProperty::class);
-        $this->context = new TransformationContext();
+        $this->context = new TransformationContext;
     }
 
     #[Test]
-
     public function it_returns_null_for_null_input(): void
     {
         $result = $this->transformer->transform($this->property, null, $this->context);

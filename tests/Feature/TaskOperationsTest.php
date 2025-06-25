@@ -34,11 +34,11 @@ class TaskOperationsTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJson([
-                'message' => 'Cannot delete completed tasks'
+                'message' => 'Cannot delete completed tasks',
             ]);
 
         $this->assertDatabaseHas('tasks', [
-            'id' => $task->id
+            'id' => $task->id,
         ]);
     }
 
@@ -56,7 +56,7 @@ class TaskOperationsTest extends TestCase
         $response->assertStatus(204);
 
         $this->assertDatabaseMissing('tasks', [
-            'id' => $task->id
+            'id' => $task->id,
         ]);
     }
 
@@ -80,7 +80,7 @@ class TaskOperationsTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJson([
-                'message' => 'Cannot complete task with incomplete subtasks'
+                'message' => 'Cannot complete task with incomplete subtasks',
             ]);
 
         $this->assertDatabaseHas('tasks', [
@@ -114,7 +114,7 @@ class TaskOperationsTest extends TestCase
             ->assertJsonStructure([
                 'id',
                 'status',
-                'completed_at'
+                'completed_at',
             ])
             ->assertJson([
                 'id' => $parentTask->id,
@@ -144,7 +144,7 @@ class TaskOperationsTest extends TestCase
             ->assertJsonStructure([
                 'id',
                 'status',
-                'completed_at'
+                'completed_at',
             ])
             ->assertJson([
                 'id' => $task->id,

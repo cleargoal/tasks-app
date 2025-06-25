@@ -16,6 +16,7 @@ class TaskSortingTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private string $token;
 
     protected function setUp(): void
@@ -26,14 +27,14 @@ class TaskSortingTest extends TestCase
         $this->token = $this->user->createToken('test')->plainTextToken;
     }
 
-    public function testSortsTasksByTitle(): void
+    public function test_sorts_tasks_by_title(): void
     {
         Task::factory()->for($this->user)->create(['title' => 'Task C']);
         Task::factory()->for($this->user)->create(['title' => 'Task A']);
         Task::factory()->for($this->user)->create(['title' => 'Task B']);
 
         $response = $this->getJson('/api/tasks?sort=title:asc', [
-            'Authorization' => 'Bearer ' . $this->token
+            'Authorization' => 'Bearer '.$this->token,
         ]);
 
         $response->assertOk();
@@ -44,23 +45,23 @@ class TaskSortingTest extends TestCase
         $this->assertEquals('Task C', $tasks[2]['title']);
     }
 
-    public function testSortsTasksByPriorityAndTitle(): void
+    public function test_sorts_tasks_by_priority_and_title(): void
     {
         Task::factory()->for($this->user)->create([
             'title' => 'Task B',
-            'priority' => PriorityEnum::LOW->value  // 5
+            'priority' => PriorityEnum::LOW->value,  // 5
         ]);
         Task::factory()->for($this->user)->create([
             'title' => 'Task A',
-            'priority' => PriorityEnum::LOW->value  // 5
+            'priority' => PriorityEnum::LOW->value,  // 5
         ]);
         Task::factory()->for($this->user)->create([
             'title' => 'Task C',
-            'priority' => PriorityEnum::HIGH->value // 1
+            'priority' => PriorityEnum::HIGH->value, // 1
         ]);
 
         $response = $this->getJson('/api/tasks?sort=priority:asc,title:asc', [
-            'Authorization' => 'Bearer ' . $this->token
+            'Authorization' => 'Bearer '.$this->token,
         ]);
 
         $response->assertOk();
@@ -73,19 +74,19 @@ class TaskSortingTest extends TestCase
         $this->assertEquals('Task B', $tasks[2]['title']);
     }
 
-    public function testSortsTasksByStatus(): void
+    public function test_sorts_tasks_by_status(): void
     {
         Task::factory()->for($this->user)->create([
             'title' => 'Task A',
-            'status' => StatusEnum::DONE->value
+            'status' => StatusEnum::DONE->value,
         ]);
         Task::factory()->for($this->user)->create([
             'title' => 'Task B',
-            'status' => StatusEnum::TODO->value
+            'status' => StatusEnum::TODO->value,
         ]);
 
         $response = $this->getJson('/api/tasks?sort=status:asc', [
-            'Authorization' => 'Bearer ' . $this->token
+            'Authorization' => 'Bearer '.$this->token,
         ]);
 
         $response->assertOk();
@@ -95,13 +96,13 @@ class TaskSortingTest extends TestCase
         $this->assertEquals(StatusEnum::TODO->value, $tasks[1]['status']);
     }
 
-    public function testHandlesInvalidSortField(): void
+    public function test_handles_invalid_sort_field(): void
     {
         Task::factory()->for($this->user)->create(['title' => 'Task A']);
         Task::factory()->for($this->user)->create(['title' => 'Task B']);
 
         $response = $this->getJson('/api/tasks?sort=invalid:asc', [
-            'Authorization' => 'Bearer ' . $this->token
+            'Authorization' => 'Bearer '.$this->token,
         ]);
 
         $response->assertOk();

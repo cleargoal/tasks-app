@@ -10,13 +10,13 @@ use PHPUnit\Framework\TestCase;
 
 class TaskSortingDataTest extends TestCase
 {
-    public function testCreatesEmptySortingDataWhenStringIsEmpty(): void
+    public function test_creates_empty_sorting_data_when_string_is_empty(): void
     {
         $sortData = TaskSortingData::fromString('');
         $this->assertEmpty($sortData->sorts);
     }
 
-    public function testCreatesSortingDataFromSingleField(): void
+    public function test_creates_sorting_data_from_single_field(): void
     {
         $sortData = TaskSortingData::fromString('title:asc');
 
@@ -25,7 +25,7 @@ class TaskSortingDataTest extends TestCase
         $this->assertEquals('asc', $sortData->sorts[0]['direction']);
     }
 
-    public function testCreatesSortingDataFromMultipleFields(): void
+    public function test_creates_sorting_data_from_multiple_fields(): void
     {
         $sortData = TaskSortingData::fromString('title:asc,priority:desc');
 
@@ -36,7 +36,7 @@ class TaskSortingDataTest extends TestCase
         $this->assertEquals('desc', $sortData->sorts[1]['direction']);
     }
 
-    public function testDefaultsToAscWhenDirectionIsInvalid(): void
+    public function test_defaults_to_asc_when_direction_is_invalid(): void
     {
         $sortData = TaskSortingData::fromString('title:invalid');
 
@@ -44,7 +44,7 @@ class TaskSortingDataTest extends TestCase
         $this->assertEquals('asc', $sortData->sorts[0]['direction']);
     }
 
-    public function testIgnoresInvalidFields(): void
+    public function test_ignores_invalid_fields(): void
     {
         $sortData = TaskSortingData::fromString('invalid:asc,title:desc');
 
@@ -52,7 +52,7 @@ class TaskSortingDataTest extends TestCase
         $this->assertEquals(TaskSortFieldEnum::TITLE, $sortData->sorts[0]['field']);
     }
 
-    public function testHandlesDefaultDirectionWhenNotProvided(): void
+    public function test_handles_default_direction_when_not_provided(): void
     {
         $sortData = TaskSortingData::fromString('title');
 

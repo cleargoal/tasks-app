@@ -6,8 +6,8 @@ namespace App\Data\Casts;
 
 use Carbon\Carbon;
 use Spatie\LaravelData\Casts\Cast;
-use Spatie\LaravelData\Support\DataProperty;
 use Spatie\LaravelData\Support\Creation\CreationContext;
+use Spatie\LaravelData\Support\DataProperty;
 
 class DateOnlyCast implements Cast
 {

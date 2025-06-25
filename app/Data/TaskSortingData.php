@@ -10,7 +10,7 @@ use Spatie\LaravelData\Data;
 class TaskSortingData extends Data
 {
     /**
-     * @param array<array{field: TaskSortFieldEnum, direction: string}> $sorts
+     * @param  array<array{field: TaskSortFieldEnum, direction: string}>  $sorts
      */
     public function __construct(
         public array $sorts = []
@@ -19,7 +19,7 @@ class TaskSortingData extends Data
     public static function fromString(?string $sortString): self
     {
         if (empty($sortString)) {
-            return new self();
+            return new self;
         }
 
         $sorts = [];
@@ -28,11 +28,11 @@ class TaskSortingData extends Data
         foreach ($sortParts as $part) {
             [$field, $direction] = array_pad(explode(':', $part), 2, 'asc');
 
-            if (!in_array($field, TaskSortFieldEnum::values())) {
+            if (! in_array($field, TaskSortFieldEnum::values())) {
                 continue;
             }
 
-            if (!in_array(strtolower($direction), ['asc', 'desc'])) {
+            if (! in_array(strtolower($direction), ['asc', 'desc'])) {
                 $direction = 'asc';
             }
 

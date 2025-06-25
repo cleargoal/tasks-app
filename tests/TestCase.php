@@ -13,7 +13,7 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
         $this->withoutVite();
         $this->withHeaders([
-            'Accept' => 'application/json'
+            'Accept' => 'application/json',
         ]);
     }
 }

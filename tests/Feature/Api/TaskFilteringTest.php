@@ -16,6 +16,7 @@ class TaskFilteringTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private User $otherUser;
 
     protected function setUp(): void
@@ -31,19 +32,19 @@ class TaskFilteringTest extends TestCase
         $completedYesterday = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-14 15:30:00'
+            'completed_at' => '2024-03-14 15:30:00',
         ]);
 
         $completedToday = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 10:00:00'
+            'completed_at' => '2024-03-15 10:00:00',
         ]);
 
         Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::TODO,
-            'completed_at' => null
+            'completed_at' => null,
         ]);
 
         $response = $this->actingAs($this->user)
@@ -61,19 +62,19 @@ class TaskFilteringTest extends TestCase
         $task1 = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 09:00:00'
+            'completed_at' => '2024-03-15 09:00:00',
         ]);
 
         $task2 = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 18:30:00'
+            'completed_at' => '2024-03-15 18:30:00',
         ]);
 
         Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-16 12:00:00'
+            'completed_at' => '2024-03-16 12:00:00',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -92,7 +93,7 @@ class TaskFilteringTest extends TestCase
         Task::factory()->count(3)->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::TODO,
-            'completed_at' => null
+            'completed_at' => null,
         ]);
 
         $response = $this->actingAs($this->user)
@@ -108,13 +109,13 @@ class TaskFilteringTest extends TestCase
         $completedTask = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 12:00:00'
+            'completed_at' => '2024-03-15 12:00:00',
         ]);
 
         Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::TODO,
-            'completed_at' => null
+            'completed_at' => null,
         ]);
 
         $response = $this->actingAs($this->user)
@@ -134,7 +135,7 @@ class TaskFilteringTest extends TestCase
             'title' => 'Important Task',
             'priority' => PriorityEnum::HIGH,  // Fixed: Use HIGH instead of HIGHEST
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 12:00:00'
+            'completed_at' => '2024-03-15 12:00:00',
         ]);
 
         Task::factory()->create([
@@ -142,7 +143,7 @@ class TaskFilteringTest extends TestCase
             'title' => 'Regular Task',
             'priority' => PriorityEnum::LOW,   // Fixed: Use LOW instead of LOWEST
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 15:00:00'
+            'completed_at' => '2024-03-15 15:00:00',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -161,13 +162,13 @@ class TaskFilteringTest extends TestCase
         $userTask = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 12:00:00'
+            'completed_at' => '2024-03-15 12:00:00',
         ]);
 
         Task::factory()->create([
             'user_id' => $this->otherUser->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 14:00:00'
+            'completed_at' => '2024-03-15 14:00:00',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -186,14 +187,14 @@ class TaskFilteringTest extends TestCase
             'user_id' => $this->user->id,
             'title' => 'Later Task',
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 18:00:00'
+            'completed_at' => '2024-03-15 18:00:00',
         ]);
 
         $earlierTask = Task::factory()->create([
             'user_id' => $this->user->id,
             'title' => 'Earlier Task',
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 09:00:00'
+            'completed_at' => '2024-03-15 09:00:00',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -211,13 +212,13 @@ class TaskFilteringTest extends TestCase
         Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-14 12:00:00'
+            'completed_at' => '2024-03-14 12:00:00',
         ]);
 
         Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-16 12:00:00'
+            'completed_at' => '2024-03-16 12:00:00',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -233,7 +234,7 @@ class TaskFilteringTest extends TestCase
         Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 12:00:00'
+            'completed_at' => '2024-03-15 12:00:00',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -243,8 +244,8 @@ class TaskFilteringTest extends TestCase
             ->assertJsonStructure([
                 'message',
                 'errors' => [
-                    'filters.completedAt'
-                ]
+                    'filters.completedAt',
+                ],
             ]);
 
         $responseData = $response->json();
@@ -259,7 +260,7 @@ class TaskFilteringTest extends TestCase
     {
         Task::factory()->create([
             'user_id' => $this->user->id,
-            'due_date' => '2024-03-15'
+            'due_date' => '2024-03-15',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -269,8 +270,8 @@ class TaskFilteringTest extends TestCase
             ->assertJsonStructure([
                 'message',
                 'errors' => [
-                    'filters.dueDate'
-                ]
+                    'filters.dueDate',
+                ],
             ]);
 
         $responseData = $response->json();
@@ -317,7 +318,7 @@ class TaskFilteringTest extends TestCase
             'user_id' => $this->user->id,
             'due_date' => '2024-03-10',
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 12:00:00'
+            'completed_at' => '2024-03-15 12:00:00',
         ]);
 
         $response = $this->actingAs($this->user)

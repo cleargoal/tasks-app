@@ -10,14 +10,14 @@ use Spatie\LaravelData\Optional;
 class TaskIndexData extends Data
 {
     public function __construct(
-        public ?TaskFiltersData              $filters = null,
+        public ?TaskFiltersData $filters = null,
         public TaskSortingData|Optional|null $sort = null,
     ) {}
 
     protected static function headers(): array
     {
         return [
-            'sort' => fn(?string $value) => TaskSortingData::fromString($value),
+            'sort' => fn (?string $value) => TaskSortingData::fromString($value),
         ];
     }
 }

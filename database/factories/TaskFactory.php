@@ -21,8 +21,8 @@ class TaskFactory extends Factory
         $status = $this->faker->randomElement([StatusEnum::TODO, StatusEnum::DONE]);
 
         $dueDate = $this->faker->optional()->dateTimeBetween(
-            $createdAt->format('Y-m-d') . ' +1 day',
-            $createdAt->format('Y-m-d') . ' +60 days'
+            $createdAt->format('Y-m-d').' +1 day',
+            $createdAt->format('Y-m-d').' +60 days'
         );
 
         $completedAt = null;
@@ -31,16 +31,16 @@ class TaskFactory extends Factory
         }
 
         return [
-            'user_id'      => User::factory(),
-            'parent_id'    => null,
-            'title'        => $this->faker->sentence,
-            'description'  => $this->faker->paragraph,
-            'status'       => $status->value,
-            'priority'     => $this->faker->randomElement(PriorityEnum::cases())->value,
-            'due_date'     => $dueDate,
+            'user_id' => User::factory(),
+            'parent_id' => null,
+            'title' => $this->faker->sentence,
+            'description' => $this->faker->paragraph,
+            'status' => $status->value,
+            'priority' => $this->faker->randomElement(PriorityEnum::cases())->value,
+            'due_date' => $dueDate,
             'completed_at' => $completedAt,
-            'created_at'   => $createdAt,
-            'updated_at'   => $createdAt,
+            'created_at' => $createdAt,
+            'updated_at' => $createdAt,
         ];
     }
 }

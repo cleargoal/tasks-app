@@ -20,30 +20,33 @@ readonly class TaskService
 {
     public function __construct(
         private TaskRepository $repository
-    ) {
-    }
+    ) {}
 
     public function getFiltered(?TaskFiltersData $filters, ?TaskSortingData $sort): Collection
     {
         $user = Auth::user();
+
         return $this->repository->getByFiltersAndSort($user, $filters, $sort);
     }
 
     public function create(TaskCreateData $data): Task
     {
         $user = Auth::user();
-        return DB::transaction(fn() => $this->repository->create($user, $data));
+
+        return DB::transaction(fn () => $this->repository->create($user, $data));
     }
 
     public function update(int $taskId, TaskUpdateData $data): Task
     {
         $user = Auth::user();
-        return DB::transaction(fn() => $this->repository->update($user, $taskId, $data));
+
+        return DB::transaction(fn () => $this->repository->update($user, $taskId, $data));
     }
 
     public function findById(int $id): Task
     {
         $user = Auth::user();
+
         return $this->repository->findById($user, $id);
     }
 
@@ -65,6 +68,7 @@ readonly class TaskService
     public function markAsComplete(int $taskId): Task
     {
         $user = Auth::user();
+
         return $this->repository->markAsComplete($user, $taskId);
     }
 }

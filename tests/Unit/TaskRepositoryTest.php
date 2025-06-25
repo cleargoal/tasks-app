@@ -18,12 +18,13 @@ class TaskRepositoryTest extends TestCase
     use RefreshDatabase;
 
     private TaskRepository $repository;
+
     private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new TaskRepository();
+        $this->repository = new TaskRepository;
         $this->user = User::factory()->create();
     }
 
@@ -36,19 +37,19 @@ class TaskRepositoryTest extends TestCase
         $matchingTask = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 12:00:00'
+            'completed_at' => '2024-03-15 12:00:00',
         ]);
 
         $nonMatchingTask = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-16 12:00:00'
+            'completed_at' => '2024-03-16 12:00:00',
         ]);
 
         $todoTask = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::TODO,
-            'completed_at' => null
+            'completed_at' => null,
         ]);
 
         // Create filter with completed_at date
@@ -97,21 +98,21 @@ class TaskRepositoryTest extends TestCase
         $matchingTask = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 12:00:00'
+            'completed_at' => '2024-03-15 12:00:00',
         ]);
 
         // Non-matching task (status=todo, no completed_at)
         Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::TODO,
-            'completed_at' => null
+            'completed_at' => null,
         ]);
 
         // Non-matching task (status=done, but different completion date)
         Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-16 12:00:00'
+            'completed_at' => '2024-03-16 12:00:00',
         ]);
 
         $filters = new TaskFiltersData(

@@ -12,8 +12,8 @@ use App\Enums\StatusEnum;
 use App\Exceptions\TaskOperationException;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class TaskRepository
@@ -42,17 +42,17 @@ class TaskRepository
         }
 
         $query
-            ->when($filters->priority, fn($q) => $q->where('priority', $filters->priority->value))
-            ->when($filters->status, fn($q) => $q->where('status', $filters->status->value))
-            ->when($filters->title, fn($q) => $this->applyTextSearch($q, 'title', $filters->title))
-            ->when($filters->description, fn($q) => $this->applyTextSearch($q, 'description', $filters->description))
-            ->when($filters->dueDate, fn($q) => $q->whereDate('due_date', $filters->dueDate->toDateString()))
-            ->when($filters->completedAt, fn($q) => $q->whereDate('completed_at', $filters->completedAt->toDateString()));
+            ->when($filters->priority, fn ($q) => $q->where('priority', $filters->priority->value))
+            ->when($filters->status, fn ($q) => $q->where('status', $filters->status->value))
+            ->when($filters->title, fn ($q) => $this->applyTextSearch($q, 'title', $filters->title))
+            ->when($filters->description, fn ($q) => $this->applyTextSearch($q, 'description', $filters->description))
+            ->when($filters->dueDate, fn ($q) => $q->whereDate('due_date', $filters->dueDate->toDateString()))
+            ->when($filters->completedAt, fn ($q) => $q->whereDate('completed_at', $filters->completedAt->toDateString()));
     }
 
     private function applyTextSearch(Builder $query, string $field, string $value): Builder
     {
-        return $query->where($field, 'like', '%' . $value . '%');
+        return $query->where($field, 'like', '%'.$value.'%');
     }
 
     private function applySorting(Builder $query, ?TaskSortingData $sort): void
@@ -76,6 +76,7 @@ class TaskRepository
     {
         /** @var Task $task */
         $task = $this->queryForUser($user)->findOrFail($id);
+
         return $task;
     }
 
@@ -85,7 +86,7 @@ class TaskRepository
 
         $updateData = array_filter(
             $data->toArray(),
-            fn($value) => !is_null($value)
+            fn ($value) => ! is_null($value)
         );
         $task->update($updateData);
 

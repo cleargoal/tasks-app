@@ -7,10 +7,10 @@ namespace Tests\Feature\Api;
 use App\Enums\StatusEnum;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class TaskDateHandlingTest extends TestCase
 {
@@ -32,15 +32,15 @@ class TaskDateHandlingTest extends TestCase
         $response = $this->actingAs($this->user)
             ->postJson('/api/tasks', [
                 'title' => 'Test Task',
-                'due_date' => $tomorrow
+                'due_date' => $tomorrow,
             ]);
 
         $response->assertCreated();
-        $response->assertJsonPath('due_date', $tomorrow . 'T00:00:00.000000Z');
+        $response->assertJsonPath('due_date', $tomorrow.'T00:00:00.000000Z');
 
         $this->assertDatabaseHas('tasks', [
             'id' => $response->json('id'),
-            'due_date' => $tomorrow . ' 00:00:00'
+            'due_date' => $tomorrow.' 00:00:00',
         ]);
     }
 
@@ -50,21 +50,21 @@ class TaskDateHandlingTest extends TestCase
         $pastDate = '2024-01-15';
         $task = Task::factory()->create([
             'user_id' => $this->user->id,
-            'due_date' => $pastDate . ' 00:00:00'
+            'due_date' => $pastDate.' 00:00:00',
         ]);
 
         $newDate = '2024-01-16';
         $response = $this->actingAs($this->user)
             ->putJson("/api/tasks/{$task->id}", [
-                'due_date' => $newDate
+                'due_date' => $newDate,
             ]);
 
         $response->assertOk();
-        $response->assertJsonPath('due_date', $newDate . 'T00:00:00.000000Z');
+        $response->assertJsonPath('due_date', $newDate.'T00:00:00.000000Z');
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
-            'due_date' => $newDate . ' 00:00:00'
+            'due_date' => $newDate.' 00:00:00',
         ]);
     }
 
@@ -72,12 +72,12 @@ class TaskDateHandlingTest extends TestCase
     {
         $matchingTask = Task::factory()->create([
             'user_id' => $this->user->id,
-            'due_date' => '2024-03-15 00:00:00'
+            'due_date' => '2024-03-15 00:00:00',
         ]);
 
         $nonMatchingTask = Task::factory()->create([
             'user_id' => $this->user->id,
-            'due_date' => '2024-03-16 00:00:00'
+            'due_date' => '2024-03-16 00:00:00',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -95,19 +95,19 @@ class TaskDateHandlingTest extends TestCase
         $completedYesterday = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-14 15:30:00'
+            'completed_at' => '2024-03-14 15:30:00',
         ]);
 
         $completedToday = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::DONE,
-            'completed_at' => '2024-03-15 10:00:00'
+            'completed_at' => '2024-03-15 10:00:00',
         ]);
 
         $todoTask = Task::factory()->create([
             'user_id' => $this->user->id,
             'status' => StatusEnum::TODO,
-            'completed_at' => null
+            'completed_at' => null,
         ]);
 
         $response = $this->actingAs($this->user)

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\StatusEnum;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -23,7 +24,7 @@ class TaskOperationsTest extends TestCase
     {
         $task = Task::factory()->create([
             'user_id' => $this->user->id,
-            'status' => 'done',
+            'status' => StatusEnum::DONE->value,
             'completed_at' => now(),
         ]);
 
@@ -45,7 +46,7 @@ class TaskOperationsTest extends TestCase
     {
         $task = Task::factory()->create([
             'user_id' => $this->user->id,
-            'status' => 'todo',
+            'status' => StatusEnum::TODO->value,
         ]);
 
         $response = $this
@@ -61,18 +62,16 @@ class TaskOperationsTest extends TestCase
 
     public function test_cannot_complete_task_with_incomplete_subtasks(): void
     {
-        // Create parent task
         $parentTask = Task::factory()->create([
             'user_id' => $this->user->id,
-            'status' => 'todo',
+            'status' => StatusEnum::TODO->value,
             'completed_at' => null,
         ]);
 
-        // Create incomplete subtask
         Task::factory()->create([
             'user_id' => $this->user->id,
             'parent_id' => $parentTask->id,
-            'status' => 'todo',
+            'status' => StatusEnum::TODO->value,
         ]);
 
         $response = $this
@@ -84,30 +83,26 @@ class TaskOperationsTest extends TestCase
                 'message' => 'Cannot complete task with incomplete subtasks'
             ]);
 
-        // Verify parent task remains in todo status
         $this->assertDatabaseHas('tasks', [
             'id' => $parentTask->id,
-            'status' => 'todo',
+            'status' => StatusEnum::TODO->value,
         ]);
 
-        // Verify the task in the database is still the one we expect
         $updatedTask = Task::find($parentTask->id);
-        $this->assertEquals('todo', $updatedTask->status->value);
+        $this->assertEquals(StatusEnum::TODO, $updatedTask->status);
     }
 
     public function test_can_complete_task_with_completed_subtasks(): void
     {
-        // Create parent task
         $parentTask = Task::factory()->create([
             'user_id' => $this->user->id,
-            'status' => 'todo',
+            'status' => StatusEnum::TODO->value,
         ]);
 
-        // Create completed subtask
         Task::factory()->create([
             'user_id' => $this->user->id,
             'parent_id' => $parentTask->id,
-            'status' => 'done',
+            'status' => StatusEnum::DONE->value,
             'completed_at' => now(),
         ]);
 
@@ -123,16 +118,14 @@ class TaskOperationsTest extends TestCase
             ])
             ->assertJson([
                 'id' => $parentTask->id,
-                'status' => 'done',
+                'status' => StatusEnum::DONE->value,
             ]);
 
-        // Verify parent task is now complete
         $this->assertDatabaseHas('tasks', [
             'id' => $parentTask->id,
-            'status' => 'done',
+            'status' => StatusEnum::DONE->value,
         ]);
 
-        // Verify completed_at is set
         $this->assertNotNull(Task::find($parentTask->id)->completed_at);
     }
 
@@ -140,7 +133,7 @@ class TaskOperationsTest extends TestCase
     {
         $task = Task::factory()->create([
             'user_id' => $this->user->id,
-            'status' => 'todo',
+            'status' => StatusEnum::TODO->value,
         ]);
 
         $response = $this
@@ -155,16 +148,14 @@ class TaskOperationsTest extends TestCase
             ])
             ->assertJson([
                 'id' => $task->id,
-                'status' => 'done',
+                'status' => StatusEnum::DONE->value,
             ]);
 
-        // Verify task is complete
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
-            'status' => 'done',
+            'status' => StatusEnum::DONE->value,
         ]);
 
-        // Verify completed_at is set
         $this->assertNotNull(Task::find($task->id)->completed_at);
     }
 }

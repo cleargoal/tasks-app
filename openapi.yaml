@@ -78,7 +78,7 @@ paths:
         '401':
           description: Invalid credentials
 
-  /auth-user:
+  /me:
     get:
       summary: Get authenticated user info
       tags:
@@ -149,6 +149,15 @@ paths:
           description: |
             Filter tasks by due date in YYYY-MM-DD format
             Example: `filters[due_date]="2025-12-31"`
+        - in: query
+          name: filters[completed_at]
+          schema:
+            type: string
+            format: date
+          description: |
+            Filter tasks by completion date in YYYY-MM-DD format
+            Example: `filters[completed_at]="2025-06-22"`
+            Note: Only tasks with status "done" will have a completed_at value
         - in: query
           name: sort
           description: |

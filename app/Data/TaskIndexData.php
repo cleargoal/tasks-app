@@ -14,13 +14,6 @@ class TaskIndexData extends Data
         public TaskSortingData|Optional|null $sort = null,
     ) {}
 
-    public static function rules(): array
-    {
-        return [
-            'sort' => ['nullable', 'string'],
-        ];
-    }
-
     protected static function headers(): array
     {
         return [

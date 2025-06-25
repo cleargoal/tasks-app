@@ -11,92 +11,75 @@ use App\Data\TaskUpdateData;
 use App\Enums\StatusEnum;
 use App\Exceptions\TaskOperationException;
 use App\Models\Task;
-use Illuminate\Auth\AuthenticationException;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class TaskRepository
 {
-    /**
-     * @throws AuthenticationException
-     */
-    public function queryForUser()
+    private const int TRANSACTION_TIMEOUT = 5;
+
+    private function queryForUser(User $user): Builder
     {
-        $userId = Auth::id();
-
-        if (!$userId) {
-            throw new AuthenticationException('User is not authenticated.');
-        }
-
-        return Task::where('user_id', $userId);
+        return Task::where('user_id', $user->id);
     }
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function getByFiltersAndSort(?TaskFiltersData $filters, ?TaskSortingData $sort): Collection
+    public function getByFiltersAndSort(User $user, ?TaskFiltersData $filters = null, ?TaskSortingData $sort = null): Collection
     {
-        $query = $this->queryForUser();
+        $query = $this->queryForUser($user);
 
-        if ($filters !== null) {
-            if ($filters->priority !== null) {
-                $query->where('priority', $filters->priority->value);
-            }
-
-            if ($filters->status !== null) {
-                $query->where('status', $filters->status->value);
-            }
-
-            if ($filters->title !== null) {
-                $query->where('title', 'like', '%' . $filters->title . '%');
-            }
-
-            if ($filters->description !== null) {
-                $query->where('description', 'like', '%' . $filters->description . '%');
-            }
-        }
-
-        if ($sort !== null) {
-            foreach ($sort->sorts as $sortData) {
-                $query->orderBy($sortData['field']->value, $sortData['direction']);
-            }
-        }
+        $this->applyFilters($query, $filters);
+        $this->applySorting($query, $sort);
 
         return $query->get();
     }
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function createForUser(TaskCreateData $data): Task
+    private function applyFilters(Builder $query, ?TaskFiltersData $filters): void
     {
-        $userId = Auth::id();
-
-        if (!$userId) {
-            throw new AuthenticationException('User is not authenticated.');
+        if ($filters === null) {
+            return;
         }
 
+        $query
+            ->when($filters->priority, fn($q) => $q->where('priority', $filters->priority->value))
+            ->when($filters->status, fn($q) => $q->where('status', $filters->status->value))
+            ->when($filters->title, fn($q) => $this->applyTextSearch($q, 'title', $filters->title))
+            ->when($filters->description, fn($q) => $this->applyTextSearch($q, 'description', $filters->description))
+            ->when($filters->dueDate, fn($q) => $q->whereDate('due_date', $filters->dueDate->toDateString()))
+            ->when($filters->completedAt, fn($q) => $q->whereDate('completed_at', $filters->completedAt->toDateString()));
+    }
+
+    private function applyTextSearch(Builder $query, string $field, string $value): Builder
+    {
+        return $query->where($field, 'like', '%' . $value . '%');
+    }
+
+    private function applySorting(Builder $query, ?TaskSortingData $sort): void
+    {
+        $query->when($sort, function ($q) use ($sort) {
+            foreach ($sort->sorts as $sortData) {
+                $q->orderBy($sortData['field']->value, $sortData['direction']);
+            }
+        });
+    }
+
+    public function create(User $user, TaskCreateData $data): Task
+    {
         return Task::create([
-            'user_id' => $userId,
+            'user_id' => $user->id,
             ...$data->toArray(),
         ]);
     }
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function findOrFailForUser(int $id): Task
+    public function findById(User $user, int $id): Task
     {
-        return $this->queryForUser()->findOrFail($id);
+        return $this->queryForUser($user)->findOrFail($id);
     }
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function updateForUser(int $id, TaskUpdateData $data): Task
+    public function update(User $user, int $id, TaskUpdateData $data): Task
     {
-        $task = $this->findOrFailForUser($id);
+        $task = $this->findById($user, $id);
 
         $updateData = array_filter(
             $data->toArray(),
@@ -107,30 +90,20 @@ class TaskRepository
         return $task;
     }
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function deleteForUser(int $id): void
+    public function delete(User $user, int $id): void
     {
-        $task = $this->findOrFailForUser($id);
+        $task = $this->findById($user, $id);
         $task->delete();
     }
 
-    /**
-     * @throws AuthenticationException
-     * @throws TaskOperationException
-     */
-    public function completeTask(int $id): Task
+    public function markAsComplete(User $user, int $id): Task
     {
-        return DB::transaction(function () use ($id) {
-            $task = $this->queryForUser()
+        return DB::transaction(function () use ($user, $id) {
+            $task = $this->queryForUser($user)
                 ->lockForUpdate()
                 ->findOrFail($id);
 
-            if (Task::where('parent_id', $task->id)
-                ->where('status', StatusEnum::TODO->value)
-                ->exists()
-            ) {
+            if ($this->hasIncompleteSubtasks($task)) {
                 throw new TaskOperationException('Cannot complete task with incomplete subtasks');
             }
 
@@ -142,6 +115,13 @@ class TaskRepository
             }
 
             return $task;
-        }, 5);
+        }, self::TRANSACTION_TIMEOUT);
+    }
+
+    private function hasIncompleteSubtasks(Task $task): bool
+    {
+        return Task::where('parent_id', $task->id)
+            ->where('status', StatusEnum::TODO->value)
+            ->exists();
     }
 }

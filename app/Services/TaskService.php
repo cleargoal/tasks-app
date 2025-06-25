@@ -12,8 +12,9 @@ use App\Enums\StatusEnum;
 use App\Exceptions\TaskOperationException;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 readonly class TaskService
 {
@@ -22,59 +23,48 @@ readonly class TaskService
     ) {
     }
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function getByFiltersAndSort(?TaskFiltersData $filters, ?TaskSortingData $sort): Collection
+    public function getFiltered(?TaskFiltersData $filters, ?TaskSortingData $sort): Collection
     {
-        return $this->repository->getByFiltersAndSort($filters, $sort);
+        $user = Auth::user();
+        return $this->repository->getByFiltersAndSort($user, $filters, $sort);
     }
 
-    /**
-     * @throws AuthenticationException
-     */
     public function create(TaskCreateData $data): Task
     {
-        return $this->repository->createForUser($data);
+        $user = Auth::user();
+        return DB::transaction(fn() => $this->repository->create($user, $data));
     }
 
-    /**
-     * @throws AuthenticationException
-     */
     public function update(int $taskId, TaskUpdateData $data): Task
     {
-        return $this->repository->updateForUser($taskId, $data);
+        $user = Auth::user();
+        return DB::transaction(fn() => $this->repository->update($user, $taskId, $data));
     }
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function getOneForUser(int $id): Task
+    public function findById(int $id): Task
     {
-        return $this->repository->findOrFailForUser($id);
+        $user = Auth::user();
+        return $this->repository->findById($user, $id);
     }
 
-    /**
-     * @throws TaskOperationException
-     * @throws AuthenticationException
-     */
     public function delete(int $taskId): void
     {
-        $task = $this->repository->findOrFailForUser($taskId);
+        $user = Auth::user();
 
-        if ($task->status === StatusEnum::DONE) {
-            throw new TaskOperationException('Cannot delete completed tasks');
-        }
+        DB::transaction(function () use ($user, $taskId) {
+            $task = $this->repository->findById($user, $taskId);
 
-        $this->repository->deleteForUser($taskId);
+            if ($task->status === StatusEnum::DONE) {
+                throw new TaskOperationException('Cannot delete completed tasks');
+            }
+
+            $this->repository->delete($user, $taskId);
+        });
     }
 
-    /**
-     * @throws TaskOperationException
-     * @throws AuthenticationException
-     */
-    public function complete(int $taskId): Task
+    public function markAsComplete(int $taskId): Task
     {
-        return $this->repository->completeTask($taskId);
+        $user = Auth::user();
+        return $this->repository->markAsComplete($user, $taskId);
     }
 }

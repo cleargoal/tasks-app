@@ -45,11 +45,11 @@ Create a new task:
 `POST /api/tasks`
 
 Fields:
-- title: Task title (required)
-- description: Task description (optional)
-- priority: Priority level 1-5 (optional, default: 5)
-- status: todo/done (optional, default: todo)
-- due_date: Due date in YYYY-MM-DD format (optional)
+- 'title': Task title (required)
+- 'description': Task description (optional)
+- 'priority': Priority level 1-5 (optional, default: 5)
+- 'status': todo/done (optional, default: todo)
+- 'due_date': Due date in YYYY-MM-DD format (optional)
 
 ### Update Task
 Update existing task:
@@ -81,6 +81,7 @@ Available filters:
 - filters[priority]: Filter by priority (1-5)
 - filters[status]: Filter by status (todo/done)
 - filters[due_date]: Filter by due date (YYYY-MM-DD)
+- filters[completed_at]: Filter by completion date (YYYY-MM-DD)
 
 ### Sorting
 Sort tasks using the sort parameter:

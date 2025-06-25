@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
@@ -10,7 +10,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -29,16 +28,16 @@ class AuthController extends Controller
     }
 
     /**
-     * Login user and create token.
+     * Log in user and create token.
      */
     public function login(LoginRequest $request): JsonResponse
     {
         $user = User::where('email', $request->email)->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'The provided credentials are incorrect.'
+            ], 401);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -57,9 +56,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Get current auth user details.
+     * Get current authenticated user details.
      */
-    public function authUser(Request $request): JsonResponse
+    public function me(Request $request): JsonResponse
     {
         return response()->json($request->user());
     }

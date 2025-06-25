@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api;
 
+use App\Enums\StatusEnum;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Illuminate\Testing\Fluent\AssertableJson;
 use Carbon\Carbon;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -47,14 +47,12 @@ class TaskDateHandlingTest extends TestCase
     #[Test]
     public function it_handles_date_only_format_when_updating_task(): void
     {
-        // We can use any date for existing task
         $pastDate = '2024-01-15';
         $task = Task::factory()->create([
             'user_id' => $this->user->id,
             'due_date' => $pastDate . ' 00:00:00'
         ]);
 
-        // And we can update to any other date
         $newDate = '2024-01-16';
         $response = $this->actingAs($this->user)
             ->putJson("/api/tasks/{$task->id}", [
@@ -89,5 +87,35 @@ class TaskDateHandlingTest extends TestCase
         $response->assertJsonCount(1);
         $response->assertJsonPath('0.id', $matchingTask->id);
         $response->assertJsonPath('0.due_date', '2024-03-15T00:00:00.000000Z');
+    }
+
+    /** @test */
+    public function it_filters_tasks_by_completed_at_date(): void
+    {
+        $completedYesterday = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => StatusEnum::DONE,
+            'completed_at' => '2024-03-14 15:30:00'
+        ]);
+
+        $completedToday = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => StatusEnum::DONE,
+            'completed_at' => '2024-03-15 10:00:00'
+        ]);
+
+        $todoTask = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => StatusEnum::TODO,
+            'completed_at' => null
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->getJson('/api/tasks?filters[completedAt]=2024-03-15');
+
+        $response->assertOk();
+        $response->assertJsonCount(1);
+        $response->assertJsonPath('0.id', $completedToday->id);
+        $response->assertJsonPath('0.completed_at', '2024-03-15T10:00:00.000000Z');
     }
 }

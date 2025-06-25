@@ -7,25 +7,21 @@ namespace App\Http\Controllers;
 use App\Data\TaskCreateData;
 use App\Data\TaskIndexData;
 use App\Data\TaskUpdateData;
-use App\Exceptions\TaskOperationException;
+use App\Http\Requests\TaskIndexRequest;
 use App\Services\TaskService;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
     public function __construct(
         protected readonly TaskService $service,
-    )
-    {
+    ) {
     }
 
-    /**
-     * @throws AuthenticationException
-     */
-    public function index(TaskIndexData $data): JsonResponse
+    public function index(TaskIndexRequest $request): JsonResponse
     {
-        $tasks = $this->service->getByFiltersAndSort($data->filters, $data->sort);
+        $data = TaskIndexData::from($request->validated());
+        $tasks = $this->service->getFiltered($data->filters, $data->sort);
         return response()->json($tasks);
     }
 
@@ -35,44 +31,27 @@ class TaskController extends Controller
         return response()->json($task, 201);
     }
 
-    /**
-     * @throws AuthenticationException
-     */
     public function show(int $id): JsonResponse
     {
-        $task = $this->service->getOneForUser($id);
+        $task = $this->service->findById($id);
         return response()->json($task);
     }
 
-    /**
-     * @throws AuthenticationException
-     */
     public function update(int $id, TaskUpdateData $data): JsonResponse
     {
         $task = $this->service->update($id, $data);
         return response()->json($task);
     }
 
-    /**
-     * @throws AuthenticationException
-     */
     public function destroy(int $id): JsonResponse
     {
-        try {
-            $this->service->delete($id);
-            return response()->json(null, 204);
-        } catch (TaskOperationException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
-        }
+        $this->service->delete($id);
+        return response()->json(null, 204);
     }
 
     public function complete(int $id): JsonResponse
     {
-        try {
-            $task = $this->service->complete($id);
-            return response()->json($task);
-        } catch (TaskOperationException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
-        }
+        $task = $this->service->markAsComplete($id);
+        return response()->json($task);
     }
 }

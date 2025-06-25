@@ -11,10 +11,10 @@ use App\Http\Requests\TaskIndexRequest;
 use App\Services\TaskService;
 use Illuminate\Http\JsonResponse;
 
-class TaskController extends Controller
+readonly class TaskController
 {
     public function __construct(
-        protected readonly TaskService $service,
+        protected TaskService $service,
     ) {}
 
     public function index(TaskIndexRequest $request): JsonResponse

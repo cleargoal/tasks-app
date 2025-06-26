@@ -9,75 +9,73 @@ use App\Data\TaskFiltersData;
 use App\Data\TaskSortingData;
 use App\Data\TaskUpdateData;
 use App\Enums\StatusEnum;
-use App\Exceptions\TaskOperationException;
 use App\Models\Task;
-use App\Models\User;
 use App\Repositories\TaskRepository;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
-readonly class TaskService
+class TaskService
 {
     public function __construct(
-        private TaskRepository $repository
-    ) {}
-
-    private function getAuthenticatedUser(): User
-    {
-        /** @var User $user */
-        $user = Auth::user();
-
-        return $user;
+        private readonly TaskRepository $taskRepository,
+    ) {
     }
 
-    public function getFiltered(?TaskFiltersData $filters, ?TaskSortingData $sort): Collection
+    public function getTasks(int $userId, ?TaskFiltersData $filters = null, ?TaskSortingData $sort = null): Collection
     {
-        $user = $this->getAuthenticatedUser();
-
-        return $this->repository->getByFiltersAndSort($user, $filters, $sort);
+        return $this->taskRepository->getByFiltersAndSort($userId, $filters, $sort);
     }
 
-    public function create(TaskCreateData $data): Task
+    public function createTask(int $userId, TaskCreateData $data): Task
     {
-        $user = $this->getAuthenticatedUser();
-
-        return DB::transaction(fn () => $this->repository->create($user, $data));
+        return $this->taskRepository->create($userId, $data);
     }
 
-    public function update(int $taskId, TaskUpdateData $data): Task
+    public function getTask(int $userId, int $taskId): Task
     {
-        $user = $this->getAuthenticatedUser();
-
-        return DB::transaction(fn () => $this->repository->update($user, $taskId, $data));
+        return $this->taskRepository->findById($userId, $taskId);
     }
 
-    public function findById(int $id): Task
+    public function updateTask(int $userId, int $taskId, TaskUpdateData $data): Task
     {
-        $user = $this->getAuthenticatedUser();
-
-        return $this->repository->findById($user, $id);
+        return $this->taskRepository->update($userId, $taskId, $data);
     }
 
-    public function delete(int $taskId): void
+    /**
+     * @throws ValidationException
+     */
+    public function deleteTask(int $userId, int $taskId): void
     {
-        $user = $this->getAuthenticatedUser();
+        $task = $this->taskRepository->findById($userId, $taskId);
 
-        DB::transaction(function () use ($user, $taskId) {
-            $task = $this->repository->findById($user, $taskId);
+        if ($task->status === StatusEnum::DONE) {
+            throw ValidationException::withMessages([
+                'message' => 'Cannot delete completed tasks'
+            ]);
+        }
 
-            if ($task->status === StatusEnum::DONE) {
-                throw new TaskOperationException('Cannot delete completed tasks');
-            }
-
-            $this->repository->delete($user, $taskId);
-        });
+        $this->taskRepository->delete($userId, $taskId);
     }
 
-    public function markAsComplete(int $taskId): Task
+    /**
+     * @throws ValidationException
+     */
+    public function completeTask(int $userId, int $taskId): Task
     {
-        $user = $this->getAuthenticatedUser();
+        $task = $this->taskRepository->findById($userId, $taskId);
 
-        return $this->repository->markAsComplete($user, $taskId);
+        // Check if task has incomplete subtasks
+        $incompleteSubtasks = Task::where('parent_id', $taskId)
+            ->where('user_id', $userId)
+            ->where('status', StatusEnum::TODO)
+            ->exists();
+
+        if ($incompleteSubtasks) {
+            throw ValidationException::withMessages([
+                'message' => 'Cannot complete task with incomplete subtasks'
+            ]);
+        }
+
+        return $this->taskRepository->markAsComplete($userId, $taskId);
     }
 }

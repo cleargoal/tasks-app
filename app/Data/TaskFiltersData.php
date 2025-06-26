@@ -26,5 +26,6 @@ class TaskFiltersData extends Data
         #[WithCast(DateOnlyCast::class)]
         #[WithTransformer(DateOnlyTransformer::class)]
         public ?Carbon $completedAt,
-    ) {}
+    ) {
+    }
 }

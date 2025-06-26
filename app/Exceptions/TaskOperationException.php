@@ -6,4 +6,6 @@ namespace App\Exceptions;
 
 use Exception;
 
-class TaskOperationException extends Exception {}
+class TaskOperationException extends Exception
+{
+}

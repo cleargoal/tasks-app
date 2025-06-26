@@ -5,58 +5,90 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Data\TaskCreateData;
-use App\Data\TaskIndexData;
+use App\Data\TaskFiltersData;
+use App\Data\TaskResponseData;
+use App\Data\TaskSortingData;
 use App\Data\TaskUpdateData;
 use App\Http\Requests\TaskIndexRequest;
 use App\Services\TaskService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
-readonly class TaskController
+class TaskController
 {
     public function __construct(
-        protected TaskService $service,
-    ) {}
-
-    public function index(TaskIndexRequest $request): JsonResponse
-    {
-        $data = TaskIndexData::from($request->validated());
-        $tasks = $this->service->getFiltered($data->filters, $data->sort);
-
-        return response()->json($tasks);
+        private readonly TaskService $taskService,
+    ) {
     }
 
-    public function store(TaskCreateData $data): JsonResponse
+    public function index(TaskIndexRequest $request): Collection
     {
-        $task = $this->service->create($data);
+        $userId = Auth::id();
+        $filters = TaskFiltersData::from($request->input('filters', []));
+        $sorting = TaskSortingData::from($request->input('sort'));
 
-        return response()->json($task, 201);
+        $tasks = $this->taskService->getTasks($userId, $filters, $sorting);
+
+        return $tasks->map(fn ($task) => TaskResponseData::fromModel($task));
     }
 
-    public function show(int $id): JsonResponse
+    public function store(Request $request): TaskResponseData
     {
-        $task = $this->service->findById($id);
+        $userId = Auth::id();
+        $data = TaskCreateData::from($request);
 
-        return response()->json($task);
+        $task = $this->taskService->createTask($userId, $data);
+
+        return TaskResponseData::fromModel($task);
     }
 
-    public function update(int $id, TaskUpdateData $data): JsonResponse
+    public function show(int $id): TaskResponseData
     {
-        $task = $this->service->update($id, $data);
+        $userId = Auth::id();
+        $task = $this->taskService->getTask($userId, $id);
 
-        return response()->json($task);
+        return TaskResponseData::fromModel($task);
+    }
+
+    public function update(Request $request, int $id): TaskResponseData
+    {
+        $userId = Auth::id();
+        $data = TaskUpdateData::from($request);
+
+        $task = $this->taskService->updateTask($userId, $id, $data);
+
+        return TaskResponseData::fromModel($task);
     }
 
     public function destroy(int $id): JsonResponse
     {
-        $this->service->delete($id);
+        $userId = Auth::id();
 
-        return response()->json(null, 204);
+        try {
+            $this->taskService->deleteTask($userId, $id);
+            return response()->json(null, Response::HTTP_NO_CONTENT);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 
     public function complete(int $id): JsonResponse
     {
-        $task = $this->service->markAsComplete($id);
+        $userId = Auth::id();
 
-        return response()->json($task);
+        try {
+            $task = $this->taskService->completeTask($userId, $id);
+            return response()->json(TaskResponseData::fromModel($task), Response::HTTP_OK);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 }

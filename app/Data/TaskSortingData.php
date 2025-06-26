@@ -14,12 +14,13 @@ class TaskSortingData extends Data
      */
     public function __construct(
         public array $sorts = []
-    ) {}
+    ) {
+    }
 
     public static function fromString(?string $sortString): self
     {
         if (empty($sortString)) {
-            return new self;
+            return new self();
         }
 
         $sorts = [];

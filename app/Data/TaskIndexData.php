@@ -12,7 +12,8 @@ class TaskIndexData extends Data
     public function __construct(
         public ?TaskFiltersData $filters = null,
         public TaskSortingData|Optional|null $sort = null,
-    ) {}
+    ) {
+    }
 
     protected static function headers(): array
     {

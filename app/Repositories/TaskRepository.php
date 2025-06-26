@@ -11,7 +11,6 @@ use App\Data\TaskUpdateData;
 use App\Enums\StatusEnum;
 use App\Exceptions\TaskOperationException;
 use App\Models\Task;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -20,14 +19,9 @@ class TaskRepository
 {
     private const int TRANSACTION_TIMEOUT = 5;
 
-    private function queryForUser(User $user): Builder
+    public function getByFiltersAndSort(int $userId, ?TaskFiltersData $filters = null, ?TaskSortingData $sort = null): Collection
     {
-        return Task::where('user_id', $user->id);
-    }
-
-    public function getByFiltersAndSort(User $user, ?TaskFiltersData $filters = null, ?TaskSortingData $sort = null): Collection
-    {
-        $query = $this->queryForUser($user);
+        $query = Task::where('user_id', $userId);
 
         $this->applyFilters($query, $filters);
         $this->applySorting($query, $sort);
@@ -64,25 +58,25 @@ class TaskRepository
         });
     }
 
-    public function create(User $user, TaskCreateData $data): Task
+    public function create(int $userId, TaskCreateData $data): Task
     {
         return Task::create([
-            'user_id' => $user->id,
+            'user_id' => $userId,
             ...$data->toArray(),
         ]);
     }
 
-    public function findById(User $user, int $id): Task
+    public function findById(int $userId, int $id): Task
     {
         /** @var Task $task */
-        $task = $this->queryForUser($user)->findOrFail($id);
+        $task = Task::where('user_id', $userId)->findOrFail($id);
 
         return $task;
     }
 
-    public function update(User $user, int $id, TaskUpdateData $data): Task
+    public function update(int $userId, int $id, TaskUpdateData $data): Task
     {
-        $task = $this->findById($user, $id);
+        $task = $this->findById($userId, $id);
 
         $updateData = array_filter(
             $data->toArray(),
@@ -93,17 +87,17 @@ class TaskRepository
         return $task;
     }
 
-    public function delete(User $user, int $id): void
+    public function delete(int $userId, int $id): void
     {
-        $task = $this->findById($user, $id);
+        $task = $this->findById($userId, $id);
         $task->delete();
     }
 
-    public function markAsComplete(User $user, int $id): Task
+    public function markAsComplete(int $userId, int $id): Task
     {
-        return DB::transaction(function () use ($user, $id) {
+        return DB::transaction(function () use ($userId, $id) {
             /** @var Task $task */
-            $task = $this->queryForUser($user)
+            $task = Task::where('user_id', $userId)
                 ->lockForUpdate()
                 ->findOrFail($id);
 

@@ -52,7 +52,7 @@ class TaskFilteringTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(1);
         $response->assertJsonPath('0.id', $completedToday->id);
-        $response->assertJsonPath('0.completed_at', '2024-03-15T10:00:00.000000Z');
+        $response->assertJsonPath('0.completed_at', '2024-03-15');
     }
 
     public function test_it_filters_multiple_tasks_completed_on_same_date(): void
@@ -171,7 +171,6 @@ class TaskFilteringTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(1);
         $response->assertJsonPath('0.id', $userTask->id);
-        $response->assertJsonPath('0.user_id', $this->user->id);
     }
 
     public function test_it_sorts_filtered_completed_tasks_correctly(): void

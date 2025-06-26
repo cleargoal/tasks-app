@@ -25,7 +25,8 @@ class TaskCreateData extends Data
         #[WithCast(DateOnlyCast::class)]
         #[WithTransformer(DateOnlyTransformer::class)]
         public ?Carbon $due_date = null,
-    ) {}
+    ) {
+    }
 
     public static function rules(): array
     {

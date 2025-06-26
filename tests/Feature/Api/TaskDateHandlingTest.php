@@ -34,7 +34,7 @@ class TaskDateHandlingTest extends TestCase
             ]);
 
         $response->assertCreated();
-        $response->assertJsonPath('due_date', $tomorrow.'T00:00:00.000000Z');
+        $response->assertJsonPath('due_date', $tomorrow);
 
         $this->assertDatabaseHas('tasks', [
             'id' => $response->json('id'),
@@ -57,7 +57,7 @@ class TaskDateHandlingTest extends TestCase
             ]);
 
         $response->assertOk();
-        $response->assertJsonPath('due_date', $newDate.'T00:00:00.000000Z');
+        $response->assertJsonPath('due_date', $newDate);
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
@@ -83,7 +83,7 @@ class TaskDateHandlingTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(1);
         $response->assertJsonPath('0.id', $matchingTask->id);
-        $response->assertJsonPath('0.due_date', '2024-03-15T00:00:00.000000Z');
+        $response->assertJsonPath('0.due_date', '2024-03-15');
     }
 
     public function test_it_filters_tasks_by_completed_at_date(): void
@@ -112,6 +112,6 @@ class TaskDateHandlingTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(1);
         $response->assertJsonPath('0.id', $completedToday->id);
-        $response->assertJsonPath('0.completed_at', '2024-03-15T10:00:00.000000Z');
+        $response->assertJsonPath('0.completed_at', '2024-03-15');
     }
 }

@@ -21,9 +21,9 @@ class DateOnlyTransformerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->transformer = new DateOnlyTransformer;
+        $this->transformer = new DateOnlyTransformer();
         $this->property = $this->createMock(DataProperty::class);
-        $this->context = new TransformationContext;
+        $this->context = new TransformationContext();
     }
 
     public function test_it_returns_null_for_null_input(): void

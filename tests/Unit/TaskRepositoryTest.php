@@ -24,7 +24,7 @@ class TaskRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new TaskRepository;
+        $this->repository = new TaskRepository();
         $this->user = User::factory()->create();
     }
 
@@ -61,7 +61,7 @@ class TaskRepositoryTest extends TestCase
             completedAt: $targetDate
         );
 
-        $result = $this->repository->getByFiltersAndSort($this->user, $filters);
+        $result = $this->repository->getByFiltersAndSort($this->user->id, $filters);
 
         $this->assertCount(1, $result);
         $this->assertEquals($matchingTask->id, $result->first()->id);
@@ -82,7 +82,7 @@ class TaskRepositoryTest extends TestCase
             completedAt: null
         );
 
-        $result = $this->repository->getByFiltersAndSort($this->user, $filters);
+        $result = $this->repository->getByFiltersAndSort($this->user->id, $filters);
 
         $this->assertCount(3, $result);
     }
@@ -121,7 +121,7 @@ class TaskRepositoryTest extends TestCase
             completedAt: $targetDate
         );
 
-        $result = $this->repository->getByFiltersAndSort($this->user, $filters);
+        $result = $this->repository->getByFiltersAndSort($this->user->id, $filters);
 
         $this->assertCount(1, $result);
         $this->assertEquals($matchingTask->id, $result->first()->id);

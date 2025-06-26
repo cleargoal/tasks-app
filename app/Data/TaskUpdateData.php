@@ -28,7 +28,8 @@ class TaskUpdateData extends Data
         public ?Carbon $due_date = null,
         #[WithCast(DateTimeInterfaceCast::class)]
         public ?Carbon $completed_at = null,
-    ) {}
+    ) {
+    }
 
     public static function rules(): array
     {

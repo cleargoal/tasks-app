@@ -21,7 +21,7 @@ class DateOnlyCastTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cast = new DateOnlyCast;
+        $this->cast = new DateOnlyCast();
 
         // Mock the required dependencies
         $this->property = $this->createMock(DataProperty::class);

@@ -12,10 +12,13 @@ use App\Enums\StatusEnum;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class TaskService
 {
+    private const int TRANSACTION_TIMEOUT = 5;
+
     public function __construct(
         private readonly TaskRepository $taskRepository,
     ) {
@@ -38,7 +41,8 @@ class TaskService
 
     public function updateTask(int $userId, int $taskId, TaskUpdateData $data): Task
     {
-        return $this->taskRepository->update($userId, $taskId, $data);
+        $task = $this->taskRepository->findById($userId, $taskId);
+        return $this->taskRepository->update($task, $data);
     }
 
     /**
@@ -48,34 +52,49 @@ class TaskService
     {
         $task = $this->taskRepository->findById($userId, $taskId);
 
-        if ($task->status === StatusEnum::DONE) {
-            throw ValidationException::withMessages([
-                'message' => 'Cannot delete completed tasks'
-            ]);
-        }
+        $this->validateTaskCanBeDeleted($task);
 
-        $this->taskRepository->delete($userId, $taskId);
+        $this->taskRepository->delete($task);
+    }
+
+    public function completeTask(int $userId, int $taskId): Task
+    {
+        return DB::transaction(function () use ($userId, $taskId) {
+            $task = $this->taskRepository->findByIdWithLock($userId, $taskId);
+
+            $this->validateTaskCanBeCompleted($task, $userId);
+
+            return $this->taskRepository->markAsComplete($task);
+        }, self::TRANSACTION_TIMEOUT);
     }
 
     /**
      * @throws ValidationException
      */
-    public function completeTask(int $userId, int $taskId): Task
+    private function validateTaskCanBeDeleted(Task $task): void
     {
-        $task = $this->taskRepository->findById($userId, $taskId);
+        if ($task->status === StatusEnum::DONE) {
+            throw ValidationException::withMessages([
+                'message' => 'Cannot delete completed tasks'
+            ]);
+        }
+    }
 
-        // Check if task has incomplete subtasks
-        $incompleteSubtasks = Task::where('parent_id', $taskId)
-            ->where('user_id', $userId)
-            ->where('status', StatusEnum::TODO)
-            ->exists();
+    /**
+     * @throws ValidationException
+     */
+    private function validateTaskCanBeCompleted(Task $task, int $userId): void
+    {
+        if ($task->status === StatusEnum::DONE) {
+            throw ValidationException::withMessages([
+                'message' => 'Task is already completed'
+            ]);
+        }
 
-        if ($incompleteSubtasks) {
+        if ($this->taskRepository->hasIncompleteSubtasks($task->id, $userId)) {
             throw ValidationException::withMessages([
                 'message' => 'Cannot complete task with incomplete subtasks'
             ]);
         }
-
-        return $this->taskRepository->markAsComplete($userId, $taskId);
     }
 }

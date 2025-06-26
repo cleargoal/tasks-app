@@ -9,16 +9,12 @@ use App\Data\TaskFiltersData;
 use App\Data\TaskSortingData;
 use App\Data\TaskUpdateData;
 use App\Enums\StatusEnum;
-use App\Exceptions\TaskOperationException;
 use App\Models\Task;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 class TaskRepository
 {
-    private const int TRANSACTION_TIMEOUT = 5;
-
     public function getByFiltersAndSort(int $userId, ?TaskFiltersData $filters = null, ?TaskSortingData $sort = null): Collection
     {
         $query = Task::where('user_id', $userId);
@@ -27,6 +23,58 @@ class TaskRepository
         $this->applySorting($query, $sort);
 
         return $query->get();
+    }
+
+    public function findById(int $userId, int $id): Task
+    {
+        return Task::where('user_id', $userId)->findOrFail($id);
+    }
+
+    public function findByIdWithLock(int $userId, int $id): Task
+    {
+        return Task::where('user_id', $userId)->lockForUpdate()->findOrFail($id);
+    }
+
+    public function create(int $userId, TaskCreateData $data): Task
+    {
+        return Task::create([
+            'user_id' => $userId,
+            ...$data->toArray(),
+        ]);
+    }
+
+    public function update(Task $task, TaskUpdateData $data): Task
+    {
+        $updateData = array_filter(
+            $data->toArray(),
+            fn ($value) => !is_null($value)
+        );
+
+        $task->update($updateData);
+        return $task;
+    }
+
+    public function delete(Task $task): void
+    {
+        $task->delete();
+    }
+
+    public function markAsComplete(Task $task): Task
+    {
+        $task->update([
+            'status' => StatusEnum::DONE,
+            'completed_at' => now(),
+        ]);
+
+        return $task;
+    }
+
+    public function hasIncompleteSubtasks(int $taskId, int $userId): bool
+    {
+        return Task::where('parent_id', $taskId)
+            ->where('user_id', $userId)
+            ->where('status', StatusEnum::TODO)
+            ->exists();
     }
 
     private function applyFilters(Builder $query, ?TaskFiltersData $filters): void
@@ -56,70 +104,5 @@ class TaskRepository
                 $q->orderBy($sortData['field']->value, $sortData['direction']);
             }
         });
-    }
-
-    public function create(int $userId, TaskCreateData $data): Task
-    {
-        return Task::create([
-            'user_id' => $userId,
-            ...$data->toArray(),
-        ]);
-    }
-
-    public function findById(int $userId, int $id): Task
-    {
-        /** @var Task $task */
-        $task = Task::where('user_id', $userId)->findOrFail($id);
-
-        return $task;
-    }
-
-    public function update(int $userId, int $id, TaskUpdateData $data): Task
-    {
-        $task = $this->findById($userId, $id);
-
-        $updateData = array_filter(
-            $data->toArray(),
-            fn ($value) => ! is_null($value)
-        );
-        $task->update($updateData);
-
-        return $task;
-    }
-
-    public function delete(int $userId, int $id): void
-    {
-        $task = $this->findById($userId, $id);
-        $task->delete();
-    }
-
-    public function markAsComplete(int $userId, int $id): Task
-    {
-        return DB::transaction(function () use ($userId, $id) {
-            /** @var Task $task */
-            $task = Task::where('user_id', $userId)
-                ->lockForUpdate()
-                ->findOrFail($id);
-
-            if ($this->hasIncompleteSubtasks($task)) {
-                throw new TaskOperationException('Cannot complete task with incomplete subtasks');
-            }
-
-            if ($task->status === StatusEnum::TODO) {
-                $task->update([
-                    'status' => StatusEnum::DONE,
-                    'completed_at' => now(),
-                ]);
-            }
-
-            return $task;
-        }, self::TRANSACTION_TIMEOUT);
-    }
-
-    private function hasIncompleteSubtasks(Task $task): bool
-    {
-        return Task::where('parent_id', $task->id)
-            ->where('status', StatusEnum::TODO->value)
-            ->exists();
     }
 }

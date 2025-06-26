@@ -1,0 +1,10 @@
+{
+    "preset": "psr12",
+    "rules": {
+        "declare_strict_types": true
+    },
+    "exclude": [
+        "config",
+        "resources/views"
+    ]
+}

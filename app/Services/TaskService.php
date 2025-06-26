@@ -24,6 +24,10 @@ class TaskService
     ) {
     }
 
+
+    /**
+     * @return Collection<int, Task>
+     */
     public function getTasks(int $userId, ?TaskFiltersData $filters = null, ?TaskSortingData $sort = null): Collection
     {
         return $this->taskRepository->getByFiltersAndSort($userId, $filters, $sort);

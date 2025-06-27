@@ -35,11 +35,72 @@ docker run --rm \
 `./vendor/bin/sail artisan migrate --seed`
 
 ## Testing
-### Run all tests
+
+### Setting up the sail alias (optional but recommended)
+
+For easier command execution, you can set up a bash alias for sail.
+
+Add this line to your ~/.bashrc or ~/.zshrc file:
+
+`alias sail='./vendor/bin/sail'`
+
+Then reload your shell:
+
+`source ~/.bashrc`
+
+### Running Tests
+
+Run all tests:
+
 `./vendor/bin/sail artisan test`
-### Run tests with coverage
+
+or with alias:
+
+`sail artisan test`
+
+Run tests with code coverage report:
+
 `./vendor/bin/sail artisan test --coverage`
 
+or with alias:
+
+`sail artisan test --coverage`
+
+The coverage report will show which parts of your code are covered by tests, helping you identify areas that need more testing.
+
+### Code Quality Tools
+
+#### Code Style with Laravel Pint
+Check and fix code style issues:
+
+`./vendor/bin/sail pint`
+
+or with alias:
+
+`sail pint`
+
+Check code style without making changes (dry run):
+
+`./vendor/bin/sail pint --test`
+
+or with alias:
+
+`sail pint --test`
+
+#### Static Analysis with PHPStan
+Run PHPStan to catch potential bugs and type errors:
+
+`./vendor/bin/sail exec laravel.test ./vendor/bin/phpstan analyse`
+
+or with alias:
+
+`sail exec laravel.test ./vendor/bin/phpstan analyse`
+
+### Pre-commit Checklist
+Before committing your changes, it's recommended to run:
+1. `sail pint` - Fix code style issues
+2. `sail artisan test` - Ensure all tests pass
+3. `sail exec laravel.test ./vendor/bin/phpstan analyse` - Check for static analysis issues
 
 ## OpenAPI Documentation
 A detailed OpenAPI (version 3.0.3) specification is available in `openapi.yaml`. This file contains complete API schema definitions, request/response examples, and detailed parameter descriptions. You can use this file with any OpenAPI-compatible tool for a more interactive documentation experience.

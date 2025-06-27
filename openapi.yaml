@@ -302,7 +302,7 @@ paths:
           description: Task deleted
 
   /tasks/{id}/complete:
-    post:
+    patch:
       summary: Mark task as completed
       security:
         - bearerAuth: []

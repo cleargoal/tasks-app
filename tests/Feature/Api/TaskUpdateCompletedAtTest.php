@@ -254,4 +254,27 @@ class TaskUpdateCompletedAtTest extends TestCase
 
         $response->assertJsonPath('completed_at', null);
     }
+
+    public function test_set_task_completed(): void
+    {
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => StatusEnum::TODO,
+            'completed_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->patchJson("/api/tasks/{$task->id}/complete");
+
+        $response->assertOk();
+        $response->assertJsonPath('status', StatusEnum::DONE->value);
+
+        $json = $response->json();
+
+        $this->assertNotNull($json['completed_at'], 'completed_at should not be null');
+        $this->assertTrue(
+            now()->isSameDay(Carbon::parse($json['completed_at'])),
+            'completed_at is not today'
+        );
+    }
 }

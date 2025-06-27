@@ -14,6 +14,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 
     Route::apiResource('tasks', TaskController::class);
-    Route::post('/tasks/{id}/complete', [TaskController::class, 'complete'])
+    Route::patch('/tasks/{id}/complete', [TaskController::class, 'complete'])
         ->name('tasks.complete');
 });

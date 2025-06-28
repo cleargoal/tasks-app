@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Http\Requests\LoginRequest;
-use App\Http\Requests\RegisterUserRequest;
+use App\Data\Auth\LoginData;
+use App\Data\Auth\RegisterData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;

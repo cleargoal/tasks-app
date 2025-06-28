@@ -17,6 +17,13 @@ class TaskSortingData extends Data
     ) {
     }
 
+    public static function rules(): array
+    {
+        return [
+            'sort' => ['nullable', 'string'],
+        ];
+    }
+
     public static function fromString(?string $sortString): self
     {
         if (empty($sortString)) {

@@ -33,9 +33,37 @@ class TaskService
         return $this->taskRepository->getByFiltersAndSort($userId, $filters, $sort);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function createTask(int $userId, TaskCreateData $data): Task
     {
+        $this->validateTaskCreate($userId, $data);
+
         return $this->taskRepository->create($userId, $data);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function validateTaskCreate(int $userId, TaskCreateData $data): void
+    {
+        // Add any additional validation logic here
+        // For example, checking if parent task exists and belongs to the user
+        if ($data->parentId !== null) {
+            try {
+                $parentTask = $this->taskRepository->findById($userId, $data->parentId);
+                if ($parentTask->status === StatusEnum::DONE) {
+                    throw ValidationException::withMessages([
+                        'message' => 'Cannot add subtask to a completed task'
+                    ]);
+                }
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                throw ValidationException::withMessages([
+                    'message' => 'Parent task not found'
+                ]);
+            }
+        }
     }
 
     public function getTask(int $userId, int $taskId): Task
@@ -43,10 +71,56 @@ class TaskService
         return $this->taskRepository->findById($userId, $taskId);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function updateTask(int $userId, int $taskId, TaskUpdateData $data): Task
     {
         $task = $this->taskRepository->findById($userId, $taskId);
+        $this->validateTaskUpdate($userId, $task, $data);
+
         return $this->taskRepository->update($task, $data);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function validateTaskUpdate(int $userId, Task $task, TaskUpdateData $data): void
+    {
+        // Validate status change
+        if ($data->status === StatusEnum::DONE && $task->status !== StatusEnum::DONE) {
+            // If trying to mark as complete, check for incomplete subtasks
+            if ($this->taskRepository->hasIncompleteSubtasks($task->id, $userId)) {
+                throw ValidationException::withMessages([
+                    'message' => 'Cannot complete task with incomplete subtasks'
+                ]);
+            }
+        }
+
+        // Validate parent_id change
+        if ($data->parentId !== null && $data->parentId !== $task->parent_id) {
+            try {
+                $parentTask = $this->taskRepository->findById($userId, $data->parentId);
+
+                // Check if the new parent task is not completed
+                if ($parentTask->status === StatusEnum::DONE) {
+                    throw ValidationException::withMessages([
+                        'message' => 'Cannot move task under a completed parent task'
+                    ]);
+                }
+
+                // Check for circular reference
+                if ($data->parentId === $task->id) {
+                    throw ValidationException::withMessages([
+                        'message' => 'Task cannot be its own parent'
+                    ]);
+                }
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                throw ValidationException::withMessages([
+                    'message' => 'Parent task not found'
+                ]);
+            }
+        }
     }
 
     /**

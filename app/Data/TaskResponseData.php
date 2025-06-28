@@ -49,4 +49,16 @@ class TaskResponseData extends Data
             updatedAt: $task->updated_at,
         );
     }
+
+    public function toArray(): array
+    {
+        $data = parent::toArray();
+
+        // Ensure completedAt is included as completed_at in the response
+        if (!isset($data['completed_at'])) {
+            $data['completed_at'] = $this->completedAt;
+        }
+
+        return $data;
+    }
 }

@@ -106,7 +106,14 @@ class TaskController
             $userId = Auth::id();
             $task = $this->taskService->completeTask($userId, $id);
 
-            return response()->json(TaskResponseData::fromModel($task), Response::HTTP_OK);
+            // Create a custom response with the required fields
+            $response = [
+                'id' => $task->id,
+                'status' => $task->status->value,
+                'completed_at' => $task->completed_at,
+            ];
+
+            return response()->json($response, Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()

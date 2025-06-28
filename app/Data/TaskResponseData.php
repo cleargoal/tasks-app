@@ -22,15 +22,15 @@ class TaskResponseData extends Data
         public string $description,
         public StatusEnum $status,
         public PriorityEnum $priority,
-        public ?int $parent_id,
+        public ?int $parentId,
         #[WithCast(DateOnlyCast::class)]
         #[WithTransformer(DateOnlyTransformer::class)]
-        public ?Carbon $due_date,
+        public ?Carbon $dueDate,
         #[WithCast(DateOnlyCast::class)]
         #[WithTransformer(DateOnlyTransformer::class)]
-        public ?Carbon $completed_at,
-        public Carbon $created_at,
-        public Carbon $updated_at,
+        public ?Carbon $completedAt,
+        public Carbon $createdAt,
+        public Carbon $updatedAt,
     ) {
     }
 
@@ -42,11 +42,11 @@ class TaskResponseData extends Data
             description: $task->description,
             status: $task->status,
             priority: $task->priority,
-            parent_id: $task->parent_id,
-            due_date: $task->due_date,
-            completed_at: $task->completed_at,
-            created_at: $task->created_at,
-            updated_at: $task->updated_at,
+            parentId: $task->parent_id,
+            dueDate: $task->due_date,
+            completedAt: $task->completed_at,
+            createdAt: $task->created_at,
+            updatedAt: $task->updated_at,
         );
     }
 }

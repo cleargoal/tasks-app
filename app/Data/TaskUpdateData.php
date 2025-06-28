@@ -25,9 +25,9 @@ class TaskUpdateData extends Data
         public ?int $parentId = null,
         #[WithCast(DateOnlyCast::class)]
         #[WithTransformer(DateOnlyTransformer::class)]
-        public ?Carbon $due_date = null,
+        public ?Carbon $dueDate = null,
         #[WithCast(DateTimeInterfaceCast::class)]
-        public ?Carbon $completed_at = null,
+        public ?Carbon $completedAt = null,
     ) {
     }
 
@@ -39,8 +39,8 @@ class TaskUpdateData extends Data
             'status' => ['nullable', new Enum(StatusEnum::class)],
             'priority' => ['nullable', new Enum(PriorityEnum::class)],
             'parentId' => ['nullable', 'exists:tasks,id'],
-            'due_date' => ['nullable', 'date'],
-            'completed_at' => ['nullable', 'date', 'before_or_equal:now'],
+            'dueDate' => ['nullable', 'date'],
+            'completedAt' => ['nullable', 'date', 'before_or_equal:now'],
         ];
     }
 }

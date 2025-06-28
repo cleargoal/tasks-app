@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
 
 class TaskService
 {
-    private const int TRANSACTION_TIMEOUT = 5;
+    private const int MAX_TRANSACTION_ATTEMPTS = 5;
 
     public function __construct(
         private readonly TaskRepository $taskRepository,
@@ -69,7 +69,7 @@ class TaskService
             $this->validateTaskCanBeCompleted($task, $userId);
 
             return $this->taskRepository->markAsComplete($task);
-        }, self::TRANSACTION_TIMEOUT);
+        }, self::MAX_TRANSACTION_ATTEMPTS);
     }
 
     /**

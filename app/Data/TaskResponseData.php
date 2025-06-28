@@ -54,10 +54,9 @@ class TaskResponseData extends Data
     {
         $data = parent::toArray();
 
-        // Ensure completedAt is included as completed_at in the response
-        if (!isset($data['completed_at'])) {
-            $data['completed_at'] = $this->completedAt;
-        }
+        $data['due_date'] = $this->dueDate?->format('Y-m-d');
+
+        $data['completed_at'] = $this->completedAt?->format('Y-m-d');
 
         return $data;
     }

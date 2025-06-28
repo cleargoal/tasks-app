@@ -13,14 +13,10 @@ class DateOnlyCast implements Cast
 {
     public function cast(DataProperty $property, mixed $value, array $properties, CreationContext $context): ?Carbon
     {
-        if ($value === null) {
-            return null;
-        }
-
-        if ($value instanceof Carbon) {
-            return $value->startOfDay();
-        }
-
-        return Carbon::parse($value)->startOfDay();
+        return match (true) {
+            $value === null => null,
+            $value instanceof Carbon => $value->startOfDay(),
+            default => Carbon::parse($value)->startOfDay(),
+        };
     }
 }

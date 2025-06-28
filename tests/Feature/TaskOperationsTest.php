@@ -78,7 +78,7 @@ class TaskOperationsTest extends TestCase
 
         $response = $this
             ->actingAs($this->user)
-            ->postJson("/api/tasks/{$parentTask->id}/complete");
+            ->patchJson("/api/tasks/{$parentTask->id}/complete");
 
         $response->assertStatus(422)
             ->assertJson([
@@ -110,7 +110,7 @@ class TaskOperationsTest extends TestCase
 
         $response = $this
             ->actingAs($this->user)
-            ->postJson("/api/tasks/{$parentTask->id}/complete");
+            ->patchJson("/api/tasks/{$parentTask->id}/complete");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -140,7 +140,7 @@ class TaskOperationsTest extends TestCase
 
         $response = $this
             ->actingAs($this->user)
-            ->postJson("/api/tasks/{$task->id}/complete");
+            ->patchJson("/api/tasks/{$task->id}/complete");
 
         $response->assertStatus(200)
             ->assertJsonStructure([

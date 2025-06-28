@@ -37,10 +37,37 @@ class TaskRepository
 
     public function create(int $userId, TaskCreateData $data): Task
     {
-        return Task::create([
+        $createData = $data->toArray();
+
+        // Remove due_date from the create data to handle it separately
+        $dueDate = null;
+        if (isset($createData['due_date'])) {
+            $dueDate = $createData['due_date'];
+            unset($createData['due_date']);
+        }
+
+        // Create the task with the remaining data
+        $task = Task::create([
             'user_id' => $userId,
-            ...$data->toArray(),
+            ...$createData,
         ]);
+
+        // Handle due_date separately using a direct query
+        if ($data->dueDate !== null) {
+            // Format the date as expected by the database
+            $formattedDate = $data->dueDate->format('Y-m-d 00:00:00');
+
+            // Update the due_date directly in the database
+            \DB::table('tasks')
+                ->where('id', $task->id)
+                ->update(['due_date' => $formattedDate]);
+
+            // Update the model to reflect the change
+            $task->due_date = $data->dueDate;
+        }
+
+        $task->refresh(); // Ensure we have the latest data
+        return $task;
     }
 
     public function update(Task $task, TaskUpdateData $data): Task
@@ -50,7 +77,31 @@ class TaskRepository
             fn ($value) => !is_null($value)
         );
 
+        // Remove due_date from the update data to handle it separately
+        $dueDate = null;
+        if (isset($updateData['due_date'])) {
+            $dueDate = $updateData['due_date'];
+            unset($updateData['due_date']);
+        }
+
+        // Update the task with the remaining data
         $task->update($updateData);
+
+        // Handle due_date separately using a direct query
+        if ($data->dueDate !== null) {
+            // Format the date as expected by the database
+            $formattedDate = $data->dueDate->format('Y-m-d 00:00:00');
+
+            // Update the due_date directly in the database
+            \DB::table('tasks')
+                ->where('id', $task->id)
+                ->update(['due_date' => $formattedDate]);
+
+            // Update the model to reflect the change
+            $task->due_date = $data->dueDate;
+        }
+
+        $task->refresh(); // Ensure we have the latest data
         return $task;
     }
 

@@ -25,7 +25,7 @@ docker run --rm \
 ### Step 3: Environment Configuration
 #### Copy environment file
 `cp .env.example .env`
-#### Generate application key
+#### Generate an application key
 `./vendor/bin/sail artisan key:generate`
 
 ### Step 4: Start the Application
@@ -58,7 +58,7 @@ or with alias:
 
 `sail artisan test`
 
-Run tests with code coverage report:
+Run tests with the code coverage report:
 
 `./vendor/bin/sail artisan test --coverage`
 
@@ -146,7 +146,7 @@ Create a new task:
 Fields:
 - 'title': Task title (required)
 - 'description': Task description (optional)
-- 'priority': Priority level 1-5 (optional, default: 5)
+- 'priority': Priority level 1–5 (optional, default: 5)
 - 'status': todo/done (optional, default: todo)
 - 'due_date': Due date in YYYY-MM-DD format (optional)
 
@@ -157,7 +157,7 @@ Update existing task:
 Available fields (all optional):
 - title: New task title
 - description: New task description
-- priority: New priority level (1-5)
+- priority: New priority level (1–5)
 - due_date: New due date (YYYY-MM-DD)
 
 ### Filtering Tasks
@@ -177,7 +177,7 @@ Filter with sorting:
 Available filters:
 - filters[title]: Filter by task title
 - filters[description]: Filter by task description
-- filters[priority]: Filter by priority (1-5)
+- filters[priority]: Filter by priority (1–5)
 - filters[status]: Filter by status (todo/done)
 - filters[due_date]: Filter by due date (YYYY-MM-DD)
 - filters[completed_at]: Filter by completion date (YYYY-MM-DD)
@@ -206,4 +206,4 @@ Mark a task as completed:
 Delete a task:
 `DELETE /api/tasks/{id}`
 
-Note: You cannot delete completed tasks (tasks with status "done"). Only tasks with status "todo" can be deleted.
+Note: You cannot delete completed tasks (tasks with the status "done"). Only tasks with the status "todo" can be deleted.

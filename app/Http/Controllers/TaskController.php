@@ -44,7 +44,7 @@ readonly class TaskController
         }
     }
 
-    public function store(CreateTaskRequest $request): JsonResponse
+    public function store(CreateTaskRequest $request): TaskResponseData | JsonResponse
     {
         try {
             $userId = Auth::id();
@@ -52,17 +52,7 @@ readonly class TaskController
 
             $task = $this->taskService->createTask($userId, $data);
 
-            $responseData = TaskResponseData::fromModel($task);
-
-            // If we need to use the due_date from the request, we need to create a custom response
-            if ($request->has('due_date')) {
-                $data = $responseData->toArray();
-                $data['due_date'] = $request->input('due_date');
-                return response()->json($data, Response::HTTP_CREATED);
-            }
-
-            // For POST requests, we need to specify the CREATED status code
-            return response()->json($responseData->toArray(), Response::HTTP_CREATED);
+            return TaskResponseData::fromModel($task);
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => $e->getMessage()
@@ -97,13 +87,6 @@ readonly class TaskController
             $task = $this->taskService->updateTask($userId, $id, $data);
 
             $responseData = TaskResponseData::fromModel($task);
-
-            // If we need to use the due_date from the request, we need to create a custom response
-            if ($request->has('due_date')) {
-                $data = $responseData->toArray();
-                $data['due_date'] = $request->input('due_date');
-                return response()->json($data, Response::HTTP_OK);
-            }
 
             return response()->json($responseData->toArray(), Response::HTTP_OK);
         } catch (ValidationException $e) {

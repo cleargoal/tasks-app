@@ -152,18 +152,18 @@ class TaskUpdateCompletedAtTest extends TestCase
 
         $response = $this->actingAs($this->user)
             ->putJson("/api/tasks/{$task->id}", [
-                'priority' => PriorityEnum::HIGH->value, // Changed from 'high' to PriorityEnum::HIGH->value
+                'priority' => PriorityEnum::HIGH->value,
             ]);
 
         $response->assertOk();
 
-        $response->assertJsonPath('priority', PriorityEnum::HIGH->value); // Changed from 'high' to PriorityEnum::HIGH->value
+        $response->assertJsonPath('priority', PriorityEnum::HIGH->value);
 
         $response->assertJsonPath('completed_at', null);
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
-            'priority' => PriorityEnum::HIGH->value, // Changed from 'high' to PriorityEnum::HIGH->value
+            'priority' => PriorityEnum::HIGH->value,
             'completed_at' => null,
             'status' => StatusEnum::TODO->value,
         ]);
@@ -186,7 +186,7 @@ class TaskUpdateCompletedAtTest extends TestCase
                 'title' => 'Updated Title',
                 'description' => 'Updated description',
                 'due_date' => $newDueDate,
-                'priority' => PriorityEnum::HIGH->value, // Changed from 'high' to PriorityEnum::HIGH->value
+                'priority' => PriorityEnum::HIGH->value,
             ]);
 
         $response->assertOk();
@@ -194,7 +194,7 @@ class TaskUpdateCompletedAtTest extends TestCase
         $response->assertJsonPath('title', 'Updated Title');
         $response->assertJsonPath('description', 'Updated description');
         $response->assertJsonPath('due_date', $newDueDate);
-        $response->assertJsonPath('priority', PriorityEnum::HIGH->value); // Changed from 'high' to PriorityEnum::HIGH->value
+        $response->assertJsonPath('priority', PriorityEnum::HIGH->value);
 
         $response->assertJsonPath('completed_at', null);
 
@@ -203,7 +203,7 @@ class TaskUpdateCompletedAtTest extends TestCase
             'title' => 'Updated Title',
             'description' => 'Updated description',
             'due_date' => $newDueDate . ' 00:00:00',
-            'priority' => PriorityEnum::HIGH->value, // Changed from 'high' to PriorityEnum::HIGH->value
+            'priority' => PriorityEnum::HIGH->value,
             'completed_at' => null,
             'status' => StatusEnum::TODO->value,
         ]);

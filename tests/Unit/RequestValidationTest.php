@@ -99,7 +99,7 @@ class RequestValidationTest extends TestCase
     {
         $request = new RegisterUserRequest();
         $data = [
-            'name' => str_repeat('a', 256), // 256 characters
+            'name' => str_repeat('a', 256),
             'email' => 'john@example.com',
             'password' => 'password123',
         ];
@@ -131,7 +131,7 @@ class RequestValidationTest extends TestCase
         $data = [
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'password' => '1234567', // 7 characters, minimum is 8
+            'password' => '1234567',
         ];
 
         $validator = Validator::make($data, $request->rules());

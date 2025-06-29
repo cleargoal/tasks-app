@@ -21,7 +21,6 @@ class UpdateTaskRequest extends FormRequest
 
     public function toData(): TaskUpdateData
     {
-        // Map snake_case request fields to camelCase data fields
         $data = [
             'title' => $this->input('title'),
             'description' => $this->input('description'),

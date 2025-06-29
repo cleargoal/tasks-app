@@ -128,7 +128,7 @@ class TaskFilteringTest extends TestCase
         $highPriorityCompleted = Task::factory()->create([
             'user_id' => $this->user->id,
             'title' => 'Important Task',
-            'priority' => PriorityEnum::HIGH,  // Fixed: Use HIGH instead of HIGHEST
+            'priority' => PriorityEnum::HIGH,
             'status' => StatusEnum::DONE,
             'completed_at' => '2024-03-15 12:00:00',
         ]);
@@ -136,7 +136,7 @@ class TaskFilteringTest extends TestCase
         Task::factory()->create([
             'user_id' => $this->user->id,
             'title' => 'Regular Task',
-            'priority' => PriorityEnum::LOW,   // Fixed: Use LOW instead of LOWEST
+            'priority' => PriorityEnum::LOW,
             'status' => StatusEnum::DONE,
             'completed_at' => '2024-03-15 15:00:00',
         ]);

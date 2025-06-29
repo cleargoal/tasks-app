@@ -21,8 +21,6 @@ class CreateTaskRequest extends FormRequest
 
     public function toData(): TaskCreateData
     {
-        // Map snake_case request fields to camelCase data fields
-        // Ensure required fields have default values
         $data = [
             'title' => $this->input('title', ''),
             'description' => $this->input('description', ''),
@@ -32,9 +30,7 @@ class CreateTaskRequest extends FormRequest
             'dueDate' => $this->input('due_date'),
         ];
 
-        // Filter out null values for optional fields
         $data = array_filter($data, function ($value, $key) {
-            // Keep required fields even if null
             if ($key === 'title') {
                 return true;
             }

@@ -106,7 +106,7 @@ class TaskSortingTest extends TestCase
         ]);
 
         $response->assertOk();
-        // Should return tasks without error, ignoring invalid sort
+        // Should return tasks without error, ignoring an invalid sort
         $this->assertCount(2, $response->json());
     }
 }

@@ -30,11 +30,13 @@ readonly class TaskController
             $sorting = $request->toSortingData();
 
             $tasks = $this->taskService->getTasks($userId, $filters, $sorting);
-            $taskData = $tasks->map(function ($task) {
-                return TaskResponseData::fromModel($task)->toArray();
-            });
 
-            return response()->json($taskData, Response::HTTP_OK);
+            // Map tasks to TaskResponseData objects and collect them into a DataCollection
+            $taskDataCollection = TaskResponseData::collect(
+                $tasks->map(fn ($task) => TaskResponseData::fromModel($task))
+            );
+
+            return response()->json($taskDataCollection->toArray(), Response::HTTP_OK);
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => $e->getMessage()
@@ -50,14 +52,17 @@ readonly class TaskController
 
             $task = $this->taskService->createTask($userId, $data);
 
-            $responseData = TaskResponseData::fromModel($task)->toArray();
+            $responseData = TaskResponseData::fromModel($task);
 
-            // Use the due_date from the request if it was provided
+            // If we need to use the due_date from the request, we need to create a custom response
             if ($request->has('due_date')) {
-                $responseData['due_date'] = $request->input('due_date');
+                $data = $responseData->toArray();
+                $data['due_date'] = $request->input('due_date');
+                return response()->json($data, Response::HTTP_CREATED);
             }
 
-            return response()->json($responseData, Response::HTTP_CREATED);
+            // For POST requests, we need to specify the CREATED status code
+            return response()->json($responseData->toArray(), Response::HTTP_CREATED);
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => $e->getMessage()
@@ -71,9 +76,8 @@ readonly class TaskController
             $userId = Auth::id();
             $task = $this->taskService->getTask($userId, $id);
 
-            $responseData = TaskResponseData::fromModel($task)->toArray();
-
-            return response()->json($responseData, Response::HTTP_OK);
+            $responseData = TaskResponseData::fromModel($task);
+            return response()->json($responseData->toArray(), Response::HTTP_OK);
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => $e->getMessage()
@@ -91,14 +95,17 @@ readonly class TaskController
             $userId = Auth::id();
             $data = $request->toData();
             $task = $this->taskService->updateTask($userId, $id, $data);
-            $responseData = TaskResponseData::fromModel($task)->toArray();
 
-            // Use the due_date from the request if it was provided
+            $responseData = TaskResponseData::fromModel($task);
+
+            // If we need to use the due_date from the request, we need to create a custom response
             if ($request->has('due_date')) {
-                $responseData['due_date'] = $request->input('due_date');
+                $data = $responseData->toArray();
+                $data['due_date'] = $request->input('due_date');
+                return response()->json($data, Response::HTTP_OK);
             }
 
-            return response()->json($responseData, Response::HTTP_OK);
+            return response()->json($responseData->toArray(), Response::HTTP_OK);
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => $e->getMessage()
@@ -139,9 +146,8 @@ readonly class TaskController
             $userId = Auth::id();
             $task = $this->taskService->completeTask($userId, $id);
 
-            $responseData = TaskResponseData::fromModel($task)->toArray();
-
-            return response()->json($responseData, Response::HTTP_OK);
+            $responseData = TaskResponseData::fromModel($task);
+            return response()->json($responseData->toArray(), Response::HTTP_OK);
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => $e->getMessage()

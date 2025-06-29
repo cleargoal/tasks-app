@@ -48,8 +48,6 @@ class TaskService
      */
     private function validateTaskCreate(int $userId, TaskCreateData $data): void
     {
-        // Add any additional validation logic here
-        // For example, checking if parent task exists and belongs to the user
         if ($data->parentId !== null) {
             try {
                 $parentTask = $this->taskRepository->findById($userId, $data->parentId);
@@ -87,7 +85,6 @@ class TaskService
      */
     private function validateTaskUpdate(int $userId, Task $task, TaskUpdateData $data): void
     {
-        // Validate status change
         if ($data->status === StatusEnum::DONE && $task->status !== StatusEnum::DONE) {
             // If trying to mark as complete, check for incomplete subtasks
             if ($this->taskRepository->hasIncompleteSubtasks($task->id, $userId)) {
@@ -97,7 +94,6 @@ class TaskService
             }
         }
 
-        // Validate parent_id change
         if ($data->parentId !== null && $data->parentId !== $task->parent_id) {
             try {
                 $parentTask = $this->taskRepository->findById($userId, $data->parentId);

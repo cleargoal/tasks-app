@@ -10,15 +10,15 @@ use App\Http\Requests\TaskFiltersRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Services\TaskService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
-class TaskController
+readonly class TaskController
 {
     public function __construct(
-        private readonly TaskService $taskService,
+        private TaskService $taskService,
     ) {
     }
 
@@ -66,7 +66,7 @@ class TaskController
             // Use the due_date from the request if it was provided
             if ($request->has('due_date')) {
                 $responseData['due_date'] = $request->input('due_date');
-            } else if ($task->due_date) {
+            } elseif ($task->due_date) {
                 $responseData['due_date'] = $task->due_date->format('Y-m-d');
             }
 
@@ -111,31 +111,8 @@ class TaskController
     {
         try {
             $userId = Auth::id();
-
-            // Log the request data for debugging
-            \Log::info('Update request data:', [
-                'request_all' => $request->all(),
-                'has_due_date' => $request->has('due_date'),
-                'due_date' => $request->input('due_date'),
-            ]);
-
             $data = $request->toData();
-
-            // Log the data object for debugging
-            \Log::info('TaskUpdateData:', [
-                'dueDate' => $data->dueDate,
-                'dueDate_formatted' => $data->dueDate ? $data->dueDate->format('Y-m-d H:i:s') : null,
-            ]);
-
             $task = $this->taskService->updateTask($userId, $id, $data);
-
-            // Log the updated task for debugging
-            \Log::info('Updated task:', [
-                'task_id' => $task->id,
-                'due_date' => $task->due_date,
-                'due_date_formatted' => $task->due_date ? $task->due_date->format('Y-m-d H:i:s') : null,
-            ]);
-
             $responseData = TaskResponseData::fromModel($task)->toArray();
 
             // Use the due_date from the request if it was provided
@@ -145,7 +122,7 @@ class TaskController
 
             return response()->json($responseData, Response::HTTP_OK);
         } catch (\Exception $e) {
-            \Log::error('Error updating task:', [
+            Log::error('Error updating task:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -176,14 +153,18 @@ class TaskController
             $userId = Auth::id();
             $task = $this->taskService->completeTask($userId, $id);
 
-            // Create a custom response with the required fields
-            $response = [
-                'id' => $task->id,
-                'status' => $task->status->value,
-                'completed_at' => $task->completed_at,
-            ];
+            $responseData = TaskResponseData::fromModel($task)->toArray();
 
-            return response()->json($response, Response::HTTP_OK);
+            // Ensure date fields are properly formatted
+            if ($task->due_date) {
+                $responseData['due_date'] = $task->due_date->format('Y-m-d');
+            }
+
+            if ($task->completed_at) {
+                $responseData['completed_at'] = $task->completed_at->format('Y-m-d');
+            }
+
+            return response()->json($responseData, Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()

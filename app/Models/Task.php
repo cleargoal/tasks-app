@@ -12,6 +12,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @method static Builder|static forUser(int $userId)
+ * @method static Builder|static byPriority(PriorityEnum $priority)
+ * @method static Builder|static byStatus(StatusEnum $status)
+ * @method static Builder|static withTitleContaining(string $text)
+ * @method static Builder|static withDescriptionContaining(string $text)
+ * @method static Builder|static dueOn(Carbon $date)
+ * @method static Builder|static completedOn(Carbon $date)
+ * @method static Builder|static incomplete()
+ * @method static Builder|static completed()
+ * @method static Builder|static subtasksOf(int $taskId)
+ * @method static Builder|static orderByField(string $field, string $direction = 'asc')
+ */
 class Task extends Model
 {
     use HasFactory;

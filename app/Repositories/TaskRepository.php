@@ -53,7 +53,7 @@ class TaskRepository
         ]);
 
         if ($data->dueDate !== null) {
-            $formattedDate = $data->dueDate->format('Y-m-d 00:00:00');
+            $formattedDate = $data->dueDate->format('Y-m-d');
 
             DB::table('tasks')
                 ->where('id', $task->id)
@@ -83,7 +83,7 @@ class TaskRepository
         $task->update($updateData);
 
         if ($data->dueDate !== null) {
-            $formattedDate = $data->dueDate->format('Y-m-d 00:00:00');
+            $formattedDate = $data->dueDate->format('Y-m-d');
 
             DB::table('tasks')
                 ->where('id', $task->id)
@@ -119,6 +119,12 @@ class TaskRepository
             ->exists();
     }
 
+    /**
+     * Apply filters to the query
+     *
+     * @param Builder $query The query builder instance
+     * @param TaskFiltersData|null $filters The filters to apply
+     */
     private function applyFilters(Builder $query, ?TaskFiltersData $filters): void
     {
         if ($filters === null) {
@@ -126,18 +132,31 @@ class TaskRepository
         }
 
         $query
-            ->when($filters->priority, fn ($q) => $q->byPriority($filters->priority))
-            ->when($filters->status, fn ($q) => $q->byStatus($filters->status))
-            ->when($filters->title, fn ($q) => $q->withTitleContaining($filters->title))
-            ->when($filters->description, fn ($q) => $q->withDescriptionContaining($filters->description))
-            ->when($filters->dueDate, fn ($q) => $q->dueOn($filters->dueDate))
-            ->when($filters->completedAt, fn ($q) => $q->completedOn($filters->completedAt));
+            /** @phpstan-ignore-next-line */
+            ->when($filters->priority, fn (Builder $q) => $q->byPriority($filters->priority))
+            /** @phpstan-ignore-next-line */
+            ->when($filters->status, fn (Builder $q) => $q->byStatus($filters->status))
+            /** @phpstan-ignore-next-line */
+            ->when($filters->title, fn (Builder $q) => $q->withTitleContaining($filters->title))
+            /** @phpstan-ignore-next-line */
+            ->when($filters->description, fn (Builder $q) => $q->withDescriptionContaining($filters->description))
+            /** @phpstan-ignore-next-line */
+            ->when($filters->dueDate, fn (Builder $q) => $q->dueOn($filters->dueDate))
+            /** @phpstan-ignore-next-line */
+            ->when($filters->completedAt, fn (Builder $q) => $q->completedOn($filters->completedAt));
     }
 
+    /**
+     * Apply sorting to the query
+     *
+     * @param Builder $query The query builder instance
+     * @param TaskSortingData|null $sort The sorting options to apply
+     */
     private function applySorting(Builder $query, ?TaskSortingData $sort): void
     {
-        $query->when($sort, function ($q) use ($sort) {
+        $query->when($sort, function (Builder $q) use ($sort) {
             foreach ($sort->sorts as $sortData) {
+                /** @phpstan-ignore-next-line */
                 $q->orderByField($sortData['field']->value, $sortData['direction']);
             }
         });

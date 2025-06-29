@@ -12,6 +12,7 @@ use App\Enums\StatusEnum;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -86,7 +87,7 @@ class TaskService
                         'message' => 'Cannot add subtask to a completed task'
                     ]);
                 }
-            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            } catch (ModelNotFoundException $e) {
                 throw ValidationException::withMessages([
                     'message' => 'Parent task not found'
                 ]);
@@ -100,7 +101,7 @@ class TaskService
      * @param int $userId The ID of the user who owns the task
      * @param int $taskId The ID of the task to retrieve
      * @return Task The requested task
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the task is not found
+     * @throws ModelNotFoundException If the task is not found
      */
     public function getTask(int $userId, int $taskId): Task
     {
@@ -115,7 +116,7 @@ class TaskService
      * @param TaskUpdateData $data The data for updating the task
      * @return Task The updated task
      * @throws ValidationException If the task data fails validation rules
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the task is not found
+     * @throws ModelNotFoundException If the task is not found
      */
     public function updateTask(int $userId, int $taskId, TaskUpdateData $data): Task
     {
@@ -166,7 +167,7 @@ class TaskService
                         'message' => 'Task cannot be its own parent'
                     ]);
                 }
-            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            } catch (ModelNotFoundException $e) {
                 throw ValidationException::withMessages([
                     'message' => 'Parent task not found'
                 ]);
@@ -180,7 +181,7 @@ class TaskService
      * @param int $userId The ID of the user who owns the task
      * @param int $taskId The ID of the task to delete
      * @throws ValidationException If the task cannot be deleted (e.g., it's completed)
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the task is not found
+     * @throws ModelNotFoundException If the task is not found
      */
     public function deleteTask(int $userId, int $taskId): void
     {
@@ -200,8 +201,7 @@ class TaskService
      * @param int $userId The ID of the user who owns the task
      * @param int $taskId The ID of the task to mark as complete
      * @return Task The completed task
-     * @throws ValidationException If the task cannot be completed (e.g., it's already completed or has incomplete subtasks)
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the task is not found
+     * @throws ModelNotFoundException If the task is not found
      */
     public function completeTask(int $userId, int $taskId): Task
     {

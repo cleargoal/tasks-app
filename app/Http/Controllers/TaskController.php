@@ -9,6 +9,7 @@ use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\TaskFiltersRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Services\TaskService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +33,6 @@ readonly class TaskController
      *
      * @param TaskFiltersRequest $request The request containing filter and sorting parameters
      * @return JsonResponse The JSON response containing the list of tasks
-     * @throws ValidationException If validation fails
      */
     public function index(TaskFiltersRequest $request): JsonResponse
     {
@@ -61,7 +61,6 @@ readonly class TaskController
      *
      * @param CreateTaskRequest $request The request containing task data
      * @return TaskResponseData|JsonResponse The created task data or error response
-     * @throws ValidationException If validation fails
      */
     public function store(CreateTaskRequest $request): TaskResponseData | JsonResponse
     {
@@ -84,8 +83,7 @@ readonly class TaskController
      *
      * @param int $id The ID of the task to retrieve
      * @return JsonResponse The JSON response containing the task data
-     * @throws ValidationException If validation fails
-     * @throws \Exception If the task is not found
+     * @throws Exception If the task is not found
      */
     public function show(int $id): JsonResponse
     {
@@ -112,8 +110,7 @@ readonly class TaskController
      * @param UpdateTaskRequest $request The request containing updated task data
      * @param int $id The ID of the task to update
      * @return JsonResponse The JSON response containing the updated task data
-     * @throws ValidationException If validation fails
-     * @throws \Exception If the task is not found or cannot be updated
+     * @throws Exception If the task is not found or cannot be updated
      */
     public function update(UpdateTaskRequest $request, int $id): JsonResponse
     {
@@ -146,8 +143,7 @@ readonly class TaskController
      *
      * @param int $id The ID of the task to delete
      * @return JsonResponse The JSON response with no content on success
-     * @throws ValidationException If validation fails (e.g., cannot delete completed tasks)
-     * @throws \Exception If the task is not found
+     * @throws Exception If the task is not found
      */
     public function destroy(int $id): JsonResponse
     {
@@ -160,7 +156,7 @@ readonly class TaskController
             return response()->json([
                 'message' => $e->getMessage()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
             ], Response::HTTP_NOT_FOUND);
@@ -172,8 +168,7 @@ readonly class TaskController
      *
      * @param int $id The ID of the task to mark as complete
      * @return JsonResponse The JSON response containing the completed task data
-     * @throws ValidationException If validation fails (e.g., task already completed or has incomplete subtasks)
-     * @throws \Exception If the task is not found
+     * @throws Exception If the task is not found
      */
     public function complete(int $id): JsonResponse
     {

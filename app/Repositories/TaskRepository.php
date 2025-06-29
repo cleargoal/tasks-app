@@ -12,6 +12,7 @@ use App\Enums\StatusEnum;
 use App\Models\Task;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -47,7 +48,7 @@ class TaskRepository
      * @param int $userId The ID of the user who owns the task
      * @param int $id The ID of the task to find
      * @return Task The found task
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the task is not found
+     * @throws ModelNotFoundException If the task is not found
      */
     public function findById(int $userId, int $id): Task
     {
@@ -63,7 +64,7 @@ class TaskRepository
      * @param int $userId The ID of the user who owns the task
      * @param int $id The ID of the task to find
      * @return Task The found task with a database lock
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the task is not found
+     * @throws ModelNotFoundException If the task is not found
      */
     public function findByIdWithLock(int $userId, int $id): Task
     {

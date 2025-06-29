@@ -31,18 +31,7 @@ readonly class TaskController
 
             $tasks = $this->taskService->getTasks($userId, $filters, $sorting);
             $taskData = $tasks->map(function ($task) {
-                $data = TaskResponseData::fromModel($task)->toArray();
-
-                // Ensure date fields are properly formatted
-                if ($task->due_date) {
-                    $data['due_date'] = $task->due_date->format('Y-m-d');
-                }
-
-                if ($task->completed_at) {
-                    $data['completed_at'] = $task->completed_at->format('Y-m-d');
-                }
-
-                return $data;
+                return TaskResponseData::fromModel($task)->toArray();
             });
 
             return response()->json($taskData, Response::HTTP_OK);
@@ -66,12 +55,6 @@ readonly class TaskController
             // Use the due_date from the request if it was provided
             if ($request->has('due_date')) {
                 $responseData['due_date'] = $request->input('due_date');
-            } elseif ($task->due_date) {
-                $responseData['due_date'] = $task->due_date->format('Y-m-d');
-            }
-
-            if ($task->completed_at) {
-                $responseData['completed_at'] = $task->completed_at->format('Y-m-d');
             }
 
             return response()->json($responseData, Response::HTTP_CREATED);
@@ -90,20 +73,15 @@ readonly class TaskController
 
             $responseData = TaskResponseData::fromModel($task)->toArray();
 
-            // Ensure date fields are properly formatted
-            if ($task->due_date) {
-                $responseData['due_date'] = $task->due_date->format('Y-m-d');
-            }
-
-            if ($task->completed_at) {
-                $responseData['completed_at'] = $task->completed_at->format('Y-m-d');
-            }
-
             return response()->json($responseData, Response::HTTP_OK);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
-            ], $e instanceof ValidationException ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_NOT_FOUND);
+            ], Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -121,6 +99,10 @@ readonly class TaskController
             }
 
             return response()->json($responseData, Response::HTTP_OK);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
             Log::error('Error updating task:', [
                 'error' => $e->getMessage(),
@@ -129,7 +111,7 @@ readonly class TaskController
 
             return response()->json([
                 'message' => $e->getMessage()
-            ], $e instanceof ValidationException ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_NOT_FOUND);
+            ], Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -140,10 +122,14 @@ readonly class TaskController
             $this->taskService->deleteTask($userId, $id);
 
             return response()->json(null, Response::HTTP_NO_CONTENT);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
-            ], $e instanceof ValidationException ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_NOT_FOUND);
+            ], Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -155,20 +141,15 @@ readonly class TaskController
 
             $responseData = TaskResponseData::fromModel($task)->toArray();
 
-            // Ensure date fields are properly formatted
-            if ($task->due_date) {
-                $responseData['due_date'] = $task->due_date->format('Y-m-d');
-            }
-
-            if ($task->completed_at) {
-                $responseData['completed_at'] = $task->completed_at->format('Y-m-d');
-            }
-
             return response()->json($responseData, Response::HTTP_OK);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
-            ], $e instanceof ValidationException ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_NOT_FOUND);
+            ], Response::HTTP_NOT_FOUND);
         }
     }
 }

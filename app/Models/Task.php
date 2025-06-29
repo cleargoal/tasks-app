@@ -13,6 +13,24 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ * Task model representing a task in the system.
+ *
+ * This model stores all task-related data including title, description, status,
+ * priority, due date, and completion date. It supports parent-child relationships
+ * for subtasks and belongs to a specific user.
+ *
+ * @property int $id The unique identifier of the task
+ * @property int $user_id The ID of the user who owns the task
+ * @property int|null $parent_id The ID of the parent task, if this is a subtask
+ * @property string $title The title of the task
+ * @property string $description The detailed description of the task
+ * @property StatusEnum $status The current status of the task (e.g., TODO, IN_PROGRESS, DONE)
+ * @property PriorityEnum $priority The priority level of the task
+ * @property Carbon|null $due_date The due date of the task
+ * @property Carbon|null $completed_at The date when the task was completed
+ * @property Carbon $created_at The date when the task was created
+ * @property Carbon $updated_at The date when the task was last updated
+ *
  * @method static Builder|static forUser(int $userId)
  * @method static Builder|static byPriority(PriorityEnum $priority)
  * @method static Builder|static byStatus(StatusEnum $status)
@@ -29,6 +47,11 @@ class Task extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
     protected $fillable = [
         'user_id',
         'parent_id',
@@ -40,6 +63,11 @@ class Task extends Model
         'completed_at',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'status' => StatusEnum::class,
         'priority' => PriorityEnum::class,
@@ -47,11 +75,21 @@ class Task extends Model
         'completed_at' => 'datetime',
     ];
 
+    /**
+     * Get the parent task that this task belongs to.
+     *
+     * @return BelongsTo The parent task relationship
+     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Task::class, 'parent_id');
     }
 
+    /**
+     * Get the user that owns the task.
+     *
+     * @return BelongsTo The user relationship
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

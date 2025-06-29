@@ -34,7 +34,7 @@ class TaskDateHandlingTest extends TestCase
             ]);
 
         $response->assertCreated();
-        $response->assertJsonPath('due_date', $tomorrow);
+        $response->assertJsonPath('dueDate', $tomorrow);
 
         $this->assertDatabaseHas('tasks', [
             'id' => $response->json('id'),

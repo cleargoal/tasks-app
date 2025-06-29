@@ -14,8 +14,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Repository for task data operations.
+ *
+ * This class handles all database interactions for tasks, including
+ * retrieving, creating, updating, and deleting tasks. It also provides
+ * methods for filtering and sorting tasks.
+ */
 class TaskRepository
 {
+    /**
+     * Get tasks for a user with optional filtering and sorting.
+     *
+     * @param int $userId The ID of the user who owns the tasks
+     * @param TaskFiltersData|null $filters Optional filters to apply to the task query
+     * @param TaskSortingData|null $sort Optional sorting parameters for the task query
+     * @return Collection A collection of Task models matching the criteria
+     */
     public function getByFiltersAndSort(int $userId, ?TaskFiltersData $filters = null, ?TaskSortingData $sort = null): Collection
     {
         $query = Task::forUser($userId);
@@ -26,16 +41,45 @@ class TaskRepository
         return $query->get();
     }
 
+    /**
+     * Find a task by ID for a specific user.
+     *
+     * @param int $userId The ID of the user who owns the task
+     * @param int $id The ID of the task to find
+     * @return Task The found task
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the task is not found
+     */
     public function findById(int $userId, int $id): Task
     {
         return Task::forUser($userId)->findOrFail($id);
     }
 
+    /**
+     * Find a task by ID with a database lock for a specific user.
+     *
+     * This method is used for operations that require exclusive access to the task record,
+     * such as completing a task, to prevent race conditions.
+     *
+     * @param int $userId The ID of the user who owns the task
+     * @param int $id The ID of the task to find
+     * @return Task The found task with a database lock
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the task is not found
+     */
     public function findByIdWithLock(int $userId, int $id): Task
     {
         return Task::forUser($userId)->lockForUpdate()->findOrFail($id);
     }
 
+    /**
+     * Create a new task.
+     *
+     * This method handles special formatting for date fields to ensure
+     * they are stored correctly in the database.
+     *
+     * @param int $userId The ID of the user who will own the task
+     * @param TaskCreateData $data The data for creating the task
+     * @return Task The newly created task
+     */
     public function create(int $userId, TaskCreateData $data): Task
     {
         $createData = $data->toArray();
@@ -66,6 +110,17 @@ class TaskRepository
         return $task;
     }
 
+    /**
+     * Update an existing task.
+     *
+     * This method handles special formatting for date fields to ensure
+     * they are stored correctly in the database. It also filters out null values
+     * to avoid overwriting existing data with nulls.
+     *
+     * @param Task $task The task to update
+     * @param TaskUpdateData $data The data for updating the task
+     * @return Task The updated task
+     */
     public function update(Task $task, TaskUpdateData $data): Task
     {
         $updateData = array_filter(
@@ -96,11 +151,24 @@ class TaskRepository
         return $task;
     }
 
+    /**
+     * Delete a task.
+     *
+     * @param Task $task The task to delete
+     */
     public function delete(Task $task): void
     {
         $task->delete();
     }
 
+    /**
+     * Mark a task as complete.
+     *
+     * Updates the task status to DONE and sets the completed_at timestamp.
+     *
+     * @param Task $task The task to mark as complete
+     * @return Task The updated task
+     */
     public function markAsComplete(Task $task): Task
     {
         $task->update([
@@ -111,6 +179,13 @@ class TaskRepository
         return $task;
     }
 
+    /**
+     * Check if a task has any incomplete subtasks.
+     *
+     * @param int $taskId The ID of the parent task
+     * @param int $userId The ID of the user who owns the tasks
+     * @return bool True if the task has incomplete subtasks, false otherwise
+     */
     public function hasIncompleteSubtasks(int $taskId, int $userId): bool
     {
         return Task::subtasksOf($taskId)

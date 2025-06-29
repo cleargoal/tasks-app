@@ -6,6 +6,8 @@ namespace Tests\Unit;
 
 use App\Data\Auth\LoginData;
 use App\Data\Auth\RegisterData;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest as RegisterUserRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;

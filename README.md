@@ -129,11 +129,11 @@ Required fields:
 ## Tasks
 
 ### Task Priority Levels
-- 1: Highest
-- 2: High
+- 1: High
+- 2: Mid-High
 - 3: Medium
-- 4: Low
-- 5: Lowest
+- 4: Mid-Low
+- 5: Low
 
 ### Task Status Options
 - todo: Task to be done
